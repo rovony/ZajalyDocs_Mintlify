@@ -56,14 +56,14 @@
             "icon": "server",
             "pages": [
               {
-                "group": "Server setup (universal)",
+                "group": "Server setup",
                 "pages": [
-                  "guides/servers/local-machine-setup",
-                  "guides/servers/server-initial-config",
-                  "guides/servers/github-authentication",
-                  "guides/servers/admin-server-setup",
-                  "guides/servers/binary-path-discovery",
-                  "guides/servers/verification-testing"
+                  "guides/servers/01-configure-ssh",
+                  "guides/servers/02-configure-server",
+                  "guides/servers/03-authenticate-github",
+                  "guides/servers/04-setup-admin",
+                  "guides/servers/05-discover-paths",
+                  "guides/servers/06-verify-setup"
                 ]
               },
               {
@@ -71,7 +71,6 @@
                 "pages": [
                   "guides/servers/security-hardening",
                   "guides/servers/monitoring",
-                  "guides/servers/backups",
                   "guides/servers/backups"
                 ]
               }
