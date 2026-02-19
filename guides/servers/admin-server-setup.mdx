@@ -5,38 +5,56 @@ sidebarTitle: "4. Admin-server setup"
 icon: "folder"
 ---
 
-Initialize a Git repository in the server home directory and create the **Admin-Server** folder structure used for deployment scripts and configuration. This gives you version-controlled server setup and a single place for universal management scripts.
+Initialize a Git repository in the server home directory and create the **Admin-Server** folder structure for deployment scripts and configuration. This gives you version-controlled server setup and a single place for universal management scripts.
 
 <Info>
-**Time estimate:** ~30 minutes. **Result:** Server config is in Git; Admin-Server is ready for scripts and config files.
+**Time estimate:** ~30 minutes. **Result:** Server config is in Git on GitHub; Admin-Server is ready for scripts and config files.
 </Info>
 
 ## Prerequisites
 
-- **A3 GitHub authentication** done: server can `ssh -T git@github.com` successfully
+- **A3 GitHub authentication** done: server can run `ssh -T git@github.com` successfully
 - You are connected to the server (e.g. via VSCode Remote)
 
-## 1. Initialize server-level Git repository
+<Steps>
+  <Step title="Initialize server-level Git repository">
+    1. Change to the home directory.
+    2. Initialize Git and configure local user settings.
+    3. Verify the configuration.
 
-On the server:
+    ```bash
+    cd ~
+    git init
+    ```
 
-```bash
-cd ~
-git init
-git config user.email "server@yourdomain.com"
-git config user.name "Server"
-git config pull.rebase false
-git config --list --local
-```
+    ```bash
+    git config user.email "server@yourdomain.com"
+    git config user.name "Server"
+    git config pull.rebase false
+    # Expected: no output on success
+    ```
 
-<Check>Git is initialized in the home directory with local user config.</Check>
+    ```bash
+    git config --list --local
+    ```
 
-## 2. Create server .gitignore
+    ```
+    core.repositoryformatversion=0
+    user.email=server@yourdomain.com
+    user.name=Server
+    pull.rebase=false
+    # Expected: local config shows your email, name, and pull.rebase
+    ```
 
-Create a `.gitignore` that excludes domains, secrets, and temp files but keeps Admin-Server and config:
+    <Check>Git initialized in home directory.</Check>
+  </Step>
 
-```bash
-cat > ~/.gitignore << 'EOF'
+  <Step title="Create server .gitignore">
+    1. Create the `.gitignore` file with domain directories, temp files, secrets, and system exclusions.
+    2. Verify the file was created.
+
+    ```bash
+    cat > ~/.gitignore << 'EOF'
 # Domain directories (each project has its own repo)
 domains/
 public_html/
@@ -46,7 +64,7 @@ public_html/
 *.log error_log access_log logs/
 .cache/ cache/ tmp/
 
-# Backups and large files
+# Database backups and large files
 *.sql *.sql.gz backup-*.sql
 *.zip *.tar.gz *.tar.bz2
 
@@ -64,16 +82,24 @@ public_html/
 .cagefs/ .cl.selector/ .cpanel/
 node_modules/ vendor/
 EOF
-cat ~/.gitignore
-```
+    ```
 
-<Check>Server-level `.gitignore` is in place.</Check>
+    <Note>This excludes domain directories (each project has its own repo), excludes sensitive files, and allows Admin-Server to be tracked.</Note>
 
-## 3. Create README and first commit
+    ```bash
+    cat ~/.gitignore | head -20
+    # Expected: first 20 lines of .gitignore displayed
+    ```
 
-```bash
-cd ~
-cat > README.md << 'EOF'
+    <Check>.gitignore created.</Check>
+  </Step>
+
+  <Step title="Create server README">
+    1. Create a README that documents server purpose, contents, and structure.
+    2. Include the quick restore command for new servers.
+
+    ```bash
+    cat > ~/README.md << 'EOF'
 # Server configuration
 
 **Purpose:** Server configuration, scripts, and management tools.
@@ -83,60 +109,187 @@ cat > README.md << 'EOF'
 - **Admin-Server/** — Deployment and management scripts
 - Server config files (e.g. `.gitconfig`, `.ssh/config`)
 
+## Directory structure
+
+    ~/
+    ├── Admin-Server/{scripts,config,docs,logs}
+    ├── domains/         # Per-project (each has own repo)
+    └── .gitignore
+
+**Domains:** Each project manages its own repo. Admin-Server scripts handle detection and tracking.
+
 ## Quick restore
 
 Clone this repo to a new server and run Admin-Server scripts as needed.
 EOF
+    ```
 
-git add .gitignore README.md
-git commit -m "Initial server config: .gitignore, README"
-```
+    <Check>README created.</Check>
+  </Step>
 
-<Check>First commit created.</Check>
+  <Step title="Create initial commit">
+    1. Stage the config files.
+    2. Create the first commit.
 
-## 4. Create Admin-Server directory structure
+    ```bash
+    git add .gitignore README.md
+    git status
+    # Expected: .gitignore and README.md listed as new files
+    ```
 
-```bash
-mkdir -p ~/Admin-Server/{scripts,config,docs,logs}
-touch ~/Admin-Server/config/tracked-domains.conf
-touch ~/Admin-Server/config/binary-paths.conf
-ls -la ~/Admin-Server
-ls -la ~/Admin-Server/config
-```
+    ```bash
+    git commit -m "Initial server config: .gitignore, README"
+    # Expected: 1 file changed, 2 insertions(+); or similar
+    ```
 
-Add placeholder content for config (you’ll fill paths in **Binary path discovery**):
+    <Check>First commit created.</Check>
+  </Step>
 
-```bash
-echo "# PHP_PATH=\n# COMPOSER_PATH=\n# NPM_PATH=" > ~/Admin-Server/config/binary-paths.conf
-echo "# One domain per line" > ~/Admin-Server/config/tracked-domains.conf
-```
+  <Step title="Create GitHub repository">
+    1. Create a new repository on GitHub.
+    2. Do **not** check any initialization options — already created locally.
 
-<Check>Admin-Server has `scripts/`, `config/`, `docs/`, `logs/` and config files.</Check>
+    <Tabs>
+      <Tab title="Web UI">
+        Go to [github.com/new](https://github.com/new). **Name:** `Server-YourHosting-Name`. **Visibility:** Private. Leave init options unchecked. Click **Create repository**.
+      </Tab>
+      <Tab title="GitHub CLI">
+        Run from server home: `gh repo create Server-YourHosting-Name --private --source=. --remote=origin --push`
+      </Tab>
+    </Tabs>
 
-## 5. Push to GitHub
+    <Warning>Server configuration should NOT be in a public repo. Use **Private** visibility.</Warning>
 
-Create a **new empty repository** on GitHub (e.g. `Server-YourHosting-Name`), then on the server:
+    <Check>Empty GitHub repo created.</Check>
+  </Step>
 
-```bash
-cd ~
-git remote add origin git@github.com:YOUR_USERNAME/YOUR_SERVER_REPO.git
-git add Admin-Server/
-git commit -m "Add Admin-Server structure and config"
-git branch -M main
-git push -u origin main
-```
+  <Step title="Connect and push to GitHub">
+    1. Add the remote origin.
+    2. Rename branch to main and push.
 
-<Check>Server repo is on GitHub with README, .gitignore, and Admin-Server.</Check>
+    <CodeGroup>
+    ```bash Add remote
+    git remote add origin git@github.com:YOUR_USERNAME/YOUR_REPO.git
+    # Replace placeholders; expected: no output on success
+    ```
 
-## Verification
+    ```bash Verify remote
+    git remote -v
+    # Expected: origin  git@github.com:YOUR_USERNAME/YOUR_REPO.git (fetch) (push)
+    ```
+    </CodeGroup>
 
-```bash
-git status
-git log --oneline
-git remote -v
-```
+    ```bash
+    git branch -M main
+    git push -u origin main
+    # Expected: Enumerating objects... Writing objects... branch 'main' set up to track 'origin/main'
+    ```
 
-On GitHub you should see README, .gitignore, and the Admin-Server folder.
+    Verify on GitHub: refresh the repo page. You should see README and .gitignore.
+
+    <Check>Server config synced to GitHub.</Check>
+  </Step>
+
+  <Step title="Create Admin-Server directory structure">
+    1. Create the directory structure.
+    2. Create config files with placeholder format.
+    3. Create placeholder scripts and make them executable.
+
+    ```bash
+    mkdir -p ~/Admin-Server/{scripts,config,docs,logs}
+    ```
+
+    ```bash
+    cat > ~/Admin-Server/config/tracked-domains.conf << 'EOF'
+# Format: domain_path|github_repo|detection_interval
+# Example: /home/user/domains/example.com|user/example-repo|60
+EOF
+    ```
+
+    ```bash
+    cat > ~/Admin-Server/config/binary-paths.conf << 'EOF'
+# PHP_PATH=
+# COMPOSER_PATH=
+# NPM_PATH=
+EOF
+    ```
+
+    ```bash
+    cd ~/Admin-Server/scripts
+    touch detect-domain-changes.sh setup-domain-tracking.sh check-tracking-status.sh
+    chmod +x *.sh
+    ls -la
+    # Expected: -rwxr-xr-x for each .sh file
+    ```
+
+    <Note>**scripts/** — universal management scripts; **config/** — settings; **docs/** — documentation; **logs/** — script output.</Note>
+
+    <Check>Admin-Server structure created.</Check>
+  </Step>
+
+  <Step title="Create Admin-Server README">
+    1. Document the Admin-Server purpose and structure.
+    2. Include quick start commands and configuration format.
+
+    ```bash
+    cat > ~/Admin-Server/README.md << 'ENDOFFILE'
+# Admin-Server — Server-wide tools for domain tracking and deployment.
+
+**Structure:** scripts/, config/, docs/, logs/
+**Config:** tracked-domains.conf (`domain_path|github_repo|interval`), binary-paths.conf (PHP, Composer, NPM)
+**Logs:** Script output in logs/
+ENDOFFILE
+    ```
+
+    <Check>Admin-Server documented.</Check>
+  </Step>
+
+  <Step title="Commit and push Admin-Server">
+    1. Stage the Admin-Server directory.
+    2. Commit and push to GitHub.
+
+    ```bash
+    cd ~
+    git add Admin-Server/
+    git status
+    # Expected: Admin-Server/ listed as new files
+    ```
+
+    ```bash
+    git commit -m "Add Admin-Server structure, config, and scripts"
+    git push origin main
+    # Expected: remote: Resolving deltas... To github.com:user/repo.git
+    ```
+
+    <Check>Admin-Server on GitHub.</Check>
+  </Step>
+</Steps>
+
+## Verification checklist
+
+- [ ] Git initialized in home directory
+- [ ] .gitignore excludes domains, secrets, temp files
+- [ ] README documents server purpose and structure
+- [ ] GitHub repo exists (private)
+- [ ] Admin-Server has scripts/, config/, docs/, logs/
+- [ ] tracked-domains.conf and binary-paths.conf exist
+- [ ] Placeholder scripts are executable
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="git push rejected">
+    - Check the remote URL: `git remote -v`
+    - Ensure the repo is empty on GitHub (no README/license added during creation)
+    - For first push only when the remote has conflicting content: `git push -u origin main --force`
+
+    <Danger>`--force` overwrites remote history. Use only on first push to an empty repo or when you intend to replace remote content.</Danger>
+  </Accordion>
+  <Accordion title="Permission denied on push">
+    - Verify GitHub authentication: `ssh -T git@github.com`
+    - Ensure remote URL uses SSH (`git@github.com:...`) not HTTPS (`https://github.com/...`)
+  </Accordion>
+</AccordionGroup>
 
 ## Next step
 

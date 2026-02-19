@@ -1,0 +1,254 @@
+---
+title: "Backups"
+description: "Set up automated backups for your server files, databases, and applications with cloud tools."
+sidebarTitle: "3. Backups"
+icon: "cloud-arrow-up"
+---
+
+Having reliable backups protects against data loss from human error, server failures, and security incidents. This guide covers hosted backup services and self-hosted solutions for both server files and databases.
+
+<Note>
+**3-2-1 backup rule:** Keep **3** copies of your data, on **2** different media types, with **1** copy stored offsite. For example: primary data on your server, a local backup on external storage, and a cloud copy (S3, Backblaze, etc.).
+</Note>
+
+## Cloud backup services
+
+<Tabs>
+  <Tab title="SimpleBackups">
+    <Badge>Recommended</Badge>
+
+    SaaS backup service for servers, databases, and storage. Supports MySQL, PostgreSQL, MongoDB, files, and more.
+
+    <Steps>
+      <Step title="Create account">
+        Sign up at [simplebackups.com](https://simplebackups.com).
+      </Step>
+      <Step title="Add server connection">
+        Connect via SSH or API credentials.
+      </Step>
+      <Step title="Create backup job">
+        Choose files, database, or both.
+      </Step>
+      <Step title="Set schedule">
+        Configure daily, hourly, or custom intervals.
+      </Step>
+      <Step title="Choose storage destination">
+        Select S3, Google Cloud Storage, Wasabi, or Backblaze B2.
+      </Step>
+      <Step title="Test backup and verify restore">
+        Run a manual backup and confirm you can restore data.
+      </Step>
+    </Steps>
+
+    <Tip>
+    Supports one-click database backups without installing anything on the server.
+    </Tip>
+
+    Free tier available for 1 backup.
+  </Tab>
+
+  <Tab title="Snapshooter">
+    <Badge>Great for DO</Badge>
+
+    Backup service for DigitalOcean droplets, volumes, and databases. Also supports external servers.
+
+    <Steps>
+      <Step title="Create account">
+        Sign up at [snapshooter.com](https://snapshooter.com).
+      </Step>
+      <Step title="Connect DigitalOcean or add server">
+        Link your DigitalOcean account or add server via SSH.
+      </Step>
+      <Step title="Create backup policy">
+        Configure droplet snapshot, volume snapshot, or database backup.
+      </Step>
+      <Step title="Set retention policy">
+        Define how many backups to keep.
+      </Step>
+      <Step title="Enable notifications">
+        Configure email or Slack alerts for backup status.
+      </Step>
+    </Steps>
+
+    <Tip>
+    Native DigitalOcean integration means faster snapshots.
+    </Tip>
+  </Tab>
+
+  <Tab title="Self-hosted">
+    <Badge color="gray">DIY</Badge>
+
+    For when you don't want a third-party service. Use mysqldump/pg_dump and cron.
+
+    <Steps>
+      <Step title="Create backup script">
+        Save the script below as `~/Admin-Server/scripts/backup.sh`.
+      </Step>
+      <Step title="Make executable">
+        Run `chmod +x ~/Admin-Server/scripts/backup.sh`.
+      </Step>
+      <Step title="Set up cron job">
+        Add a cron entry (e.g., daily at 2 AM).
+      </Step>
+      <Step title="Verify backups">
+        Check that backup files are created and retention works.
+      </Step>
+    </Steps>
+
+    <CodeGroup>
+    ```bash backup.sh
+    #!/bin/bash
+    BACKUP_DIR=~/backups/$(date +%Y-%m-%d)
+    mkdir -p "$BACKUP_DIR"
+
+    # Database backup
+    mysqldump -u root -p'YOUR_PASSWORD' --all-databases > "$BACKUP_DIR/all-databases.sql"
+
+    # Compress
+    gzip "$BACKUP_DIR/all-databases.sql"
+
+    # Optional: upload to S3
+    # aws s3 cp "$BACKUP_DIR/" s3://your-bucket/backups/$(date +%Y-%m-%d)/ --recursive
+
+    # Clean old backups (keep 30 days)
+    find ~/backups/ -type d -mtime +30 -exec rm -rf {} +
+    ```
+    </CodeGroup>
+
+    Cron example:
+
+    ```bash
+    0 2 * * * ~/Admin-Server/scripts/backup.sh >> ~/Admin-Server/logs/backup.log 2>&1
+    ```
+
+    <Warning>
+    Self-hosted backups require monitoring. Cron failures are silent by default.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Database-specific backups
+
+<Tabs>
+  <Tab title="MySQL">
+    <CodeGroup>
+    ```bash Full dump
+    mysqldump -u root -p --all-databases > backup.sql
+    ```
+
+    ```bash Single database
+    mysqldump -u root -p mydb > mydb.sql
+    ```
+
+    ```bash With compression
+    mysqldump -u root -p mydb | gzip > mydb.sql.gz
+    ```
+    </CodeGroup>
+
+    Restore:
+
+    ```bash
+    mysql -u root -p mydb < mydb.sql
+    ```
+  </Tab>
+
+  <Tab title="PostgreSQL">
+    <CodeGroup>
+    ```bash Full dump
+    pg_dumpall -U postgres > backup.sql
+    ```
+
+    ```bash Single database
+    pg_dump -U postgres mydb > mydb.sql
+    ```
+
+    ```bash Custom format
+    pg_dump -U postgres -Fc mydb > mydb.dump
+    ```
+    </CodeGroup>
+
+    Restore:
+
+    ```bash
+    pg_restore -U postgres -d mydb mydb.dump
+    ```
+  </Tab>
+
+  <Tab title="Redis">
+    <CodeGroup>
+    ```bash Trigger save
+    redis-cli BGSAVE
+    ```
+
+    ```bash Copy dump
+    cp /var/lib/redis/dump.rdb ~/backups/redis-$(date +%Y%m%d).rdb
+    ```
+    </CodeGroup>
+
+    Restore: stop Redis, copy `dump.rdb` back, start Redis.
+  </Tab>
+</Tabs>
+
+## File backups
+
+Use rsync to backup important directories:
+
+```bash
+rsync -avz ~/domains/ ~/backups/domains-$(date +%Y%m%d)/
+rsync -avz ~/Admin-Server/ ~/backups/admin-$(date +%Y%m%d)/
+```
+
+<Tip>
+rsync only transfers changed files, making incremental backups fast.
+</Tip>
+
+## Verification
+
+After setting up backups:
+
+- [ ] Backup job runs on schedule
+- [ ] Backup files appear in destination (S3, local, etc.)
+- [ ] You have tested a restore at least once
+- [ ] Retention policy removes old backups
+- [ ] Notifications work (email/Slack) on failure
+
+<Danger>
+**A backup you haven't tested restoring is not a backup.** Always verify you can restore from your backups.
+</Danger>
+
+## Comparison table
+
+| Feature | SimpleBackups | Snapshooter | Self-hosted |
+|---------|--------------|-------------|-------------|
+| Setup time | 10 min | 10 min | 30-60 min |
+| Database support | MySQL, PG, Mongo, Redis | MySQL, PG | Any (manual) |
+| File backup | Yes | Via SSH | Yes (rsync/tar) |
+| Cloud storage | S3, GCS, Wasabi, Backblaze | S3, DO Spaces | Manual |
+| Monitoring | Dashboard + alerts | Dashboard + alerts | Cron + manual |
+| Free tier | 1 backup | Limited | Free |
+| Best for | Most users | DigitalOcean users | Full control |
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Backup job fails silently">
+    Check cron logs: `grep CRON /var/log/syslog`. Verify script permissions and test the script manually with `bash ~/Admin-Server/scripts/backup.sh`.
+  </Accordion>
+  <Accordion title="Database dump permission denied">
+    Ensure the MySQL/PG user has backup privileges. For InnoDB, add `--single-transaction` to avoid table locking.
+  </Accordion>
+  <Accordion title="Storage full">
+    Check disk space with `df -h`. Enable retention/rotation in your backup job, and move old backups offsite.
+  </Accordion>
+</AccordionGroup>
+
+## Related guides
+
+<Columns cols={2}>
+  <Card title="Security hardening" icon="shield-halved" href="/guides/servers/security-hardening">
+    Harden your server before relying on backups.
+  </Card>
+  <Card title="Monitoring" icon="chart-line" href="/guides/servers/monitoring">
+    Monitor server health and set up alerting.
+  </Card>
+</Columns>

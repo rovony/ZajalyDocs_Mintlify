@@ -5,7 +5,7 @@ sidebarTitle: "2. Server initial configuration"
 icon: "server"
 ---
 
-Configure the server so it can authenticate with GitHub and be used for deployment. Do this from your local machine after **Local machine setup** is complete.
+Configure the server so it can authenticate with GitHub. Do this from your local machine after **Local machine setup** is complete.
 
 <Info>
 **Time estimate:** ~30 minutes. **Result:** The server can push and pull from your GitHub repositories.
@@ -16,105 +16,161 @@ Configure the server so it can authenticate with GitHub and be used for deployme
 - **A1 Local machine setup** done: you can `ssh your-server-alias` without a password
 - VSCode with the **Remote - SSH** extension
 
-## 1. Connect via VSCode Remote
+## Steps
 
-1. In VSCode, press `Ctrl+Shift+P` / `Cmd+Shift+P` and run **Remote-SSH: Connect to Host**.
-2. Choose your server alias (e.g. `your-server-alias`).
-3. When the new window opens, use **Open Folder** and open your server user home (e.g. `/home/your-username`).
+<Steps>
+  <Step title="Connect via VSCode Remote">
+    1. Open VSCode and press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (Mac)
+    2. Type **Remote-SSH: Connect to Host** and select it
+    3. Select your server alias (e.g. `your-server-alias`)
+    4. When the new window opens, click **Open Folder** (or `Ctrl+K` `Ctrl+O` / `Cmd+K` `Cmd+O`)
+    5. Enter `/home/your-username` and click OK
 
-<Check>VSCode shows "SSH: your-server-alias" and the server’s home directory in the explorer.</Check>
+    <Check>VSCode status bar shows "SSH: your-server-alias"; server home directory is visible in File Explorer.</Check>
+  </Step>
 
-## 2. Generate server GitHub SSH key
+  <Step title="Open server terminal">
+    1. In VSCode (connected to the server), click **View** → **Terminal** or press **Ctrl+`** (backtick key)
+    2. The terminal shows the server prompt (e.g. `user@server:~$`)
 
-Open the terminal in VSCode (connected to the server). It should show a prompt on the server (e.g. `user@host:~$`).
+    ```bash
+    cd ~
+    pwd
+    # Expected: /home/your-username
+    ```
 
-```bash
-cd ~
-ssh-keygen -t ed25519 \
-  -C "server-github-$(date +%Y%m%d)" \
-  -f ~/.ssh/server_github_key
-```
+    <Note>
+    This terminal runs **on the server**, not on your local machine. Commands execute remotely.
+    </Note>
+  </Step>
 
-Press **Enter** twice for no passphrase (typical for deploy automation).
+  <Step title="Generate server GitHub SSH key">
+    Run:
 
-```bash
-ls -la ~/.ssh/server_github_key*
-# Should show server_github_key and server_github_key.pub
-```
+    ```bash
+    ssh-keygen -t ed25519 -C "server-github-$(date +%Y%m%d)" -f ~/.ssh/server_github_key
+    # Prompts: passphrase — press Enter twice for none
+    # Expected: "Your identification has been saved in .../server_github_key"
+    ```
 
-<Check>Server GitHub SSH key pair created.</Check>
+    <Note>
+    Creates a server-specific key for GitHub. The filename `server_github_key` keeps it separate from your local keys. The date stamp in the comment helps identify when the key was created.
+    </Note>
 
-## 3. Secure SSH keys
+    Verify:
 
-```bash
-chmod 600 ~/.ssh/server_github_key
-chmod 644 ~/.ssh/server_github_key.pub
-ls -la ~/.ssh/server_github_key*
-# Private: -rw------- (600), public: -rw-r--r-- (644)
-```
+    ```bash
+    ls -la ~/.ssh/server_github_key*
+    # Expected: server_github_key (-rw-------), server_github_key.pub (-rw-r--r--)
+    ```
 
-<Warning>The private key must be mode 600 or SSH may refuse to use it.</Warning>
+    <Check>Server GitHub SSH key pair created.</Check>
+  </Step>
 
-<Check>Key permissions are correct.</Check>
+  <Step title="Secure SSH keys">
+    Set correct permissions:
 
-## 4. Configure SSH for GitHub on the server
+    ```bash
+    chmod 600 ~/.ssh/server_github_key
+    chmod 644 ~/.ssh/server_github_key.pub
+    # Expected: no output on success
+    ```
 
-Append a GitHub block to the server’s `~/.ssh/config`:
+    Verify:
 
-```bash
-cat >> ~/.ssh/config << 'EOF'
+    ```bash
+    ls -la ~/.ssh/server_github_key*
+    # Expected: -rw------- (600) for private, -rw-r--r-- (644) for public
+    ```
 
-# GitHub - server deploy key
+    <Warning>
+    The private key **must** be mode 600 or SSH will refuse to use it.
+    </Warning>
+
+    <Check>Key permissions correct.</Check>
+  </Step>
+
+  <Step title="Configure SSH for GitHub on the server">
+    Append the GitHub config block:
+
+    ```bash
+    cat >> ~/.ssh/config << 'EOF'
+
 Host github.com
     HostName github.com
     User git
     IdentityFile ~/.ssh/server_github_key
     IdentitiesOnly yes
 EOF
-```
+    # Expected: no output
+    ```
 
-```bash
-chmod 600 ~/.ssh/config
-cat ~/.ssh/config
-# Confirm the GitHub block is present
-```
+    <Note>
+    `IdentityFile` tells SSH to use this key for GitHub. `IdentitiesOnly yes` prevents SSH from trying other keys.
+    </Note>
 
-<Check>SSH on the server is configured to use the deploy key for GitHub.</Check>
+    Secure the config file:
 
-## 5. Get the public key for GitHub
+    ```bash
+    chmod 600 ~/.ssh/config
+    # Expected: no output
 
-```bash
-cat ~/.ssh/server_github_key.pub
-```
+    cat ~/.ssh/config
+    # Expected: GitHub block present at end of file
+    ```
 
-Copy the **entire line** (starts with `ssh-ed25519`). You will add it in **GitHub authentication** (next step).
+    <Check>SSH configured for GitHub.</Check>
+  </Step>
 
-<Tip>You can also open `~/.ssh/server_github_key.pub` in VSCode and copy from there.</Tip>
+  <Step title="Get the public key for GitHub">
+    Display the public key:
 
-## Verification
+    ```bash
+    cat ~/.ssh/server_github_key.pub
+    # Expected: single line starting with ssh-ed25519 AAAA... — copy the full line
+    ```
 
-Before adding the key in GitHub:
+    <Tip>
+    You can also view it in VSCode: File Explorer → `.ssh` → open `server_github_key.pub`. Copy the entire line.
+    </Tip>
 
-```bash
-grep -A 5 "Host github.com" ~/.ssh/config
-ls -la ~/.ssh/server_github_key*
-```
+    Keep the terminal open — you'll add this key to GitHub in the next step (**3. GitHub authentication**).
+  </Step>
+</Steps>
 
-<Check>Config and key files are in place. Proceed to add this public key to your GitHub account.</Check>
+## Verification checklist
+
+Before adding the key to GitHub:
+
+- [ ] Connected to server via VSCode Remote
+- [ ] Server GitHub SSH key generated
+- [ ] Private key has 600 permissions
+- [ ] Public key has 644 permissions
+- [ ] SSH config updated with GitHub configuration
+- [ ] SSH config file has 600 permissions
+- [ ] Public key displayed and ready to copy
 
 ## Troubleshooting
 
 <AccordionGroup>
   <Accordion title="Permission denied when generating key">
-    Ensure `~/.ssh` exists and you own it: `mkdir -p ~/.ssh && chmod 700 ~/.ssh`
+    Ensure `~/.ssh` exists and has correct ownership:
+
+    ```bash
+    mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    # Expected: no output
+    ```
   </Accordion>
-  <Accordion title="SSH config not found on server">
-    Create it: `touch ~/.ssh/config && chmod 600 ~/.ssh/config`, then re-run the `cat >> ~/.ssh/config` block.
+  <Accordion title="SSH config already has GitHub entry">
+    Edit `~/.ssh/config` in VSCode. Remove or comment out the old GitHub block, then add the new one. Keep only one `Host github.com` block.
+  </Accordion>
+  <Accordion title="Can't see .ssh folder in VSCode">
+    Enable hidden files: **Settings** → search "files.exclude" → remove `.ssh` from exclusions, or use the terminal to view files.
   </Accordion>
 </AccordionGroup>
 
 ## Next step
 
 <Card title="3. GitHub authentication" icon="github" href="/guides/servers/github-authentication">
-  Add the server’s public key to GitHub and test authentication.
+  Add the server's public key to GitHub and test authentication.
 </Card>

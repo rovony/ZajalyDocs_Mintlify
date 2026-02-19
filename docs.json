@@ -70,7 +70,9 @@
                 "group": "Server operations",
                 "pages": [
                   "guides/servers/security-hardening",
-                  "guides/servers/monitoring"
+                  "guides/servers/monitoring",
+                  "guides/servers/backups",
+                  "guides/servers/backups"
                 ]
               }
             ]

@@ -6,3 +6,6 @@ Thumbs.db
 *.swp
 *~
 .mintlify/
+
+# Inbox source files (not published, not version controlled)
+_Inbox/

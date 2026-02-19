@@ -5,129 +5,172 @@ sidebarTitle: "6. Verification & testing"
 icon: "check"
 ---
 
-Run through this checklist to confirm all Part A steps are in place before you start deploying projects (Part B).
+Run through this checklist to confirm all Part A steps are in place before you start deploying projects (Part B). This prevents deployment failures caused by missing SSH keys, misconfigured repos, or incorrect binary paths.
 
 <Info>
-**Time estimate:** ~15 minutes. **Result:** Confidence that SSH, GitHub, Git repo, Admin-Server, and binary paths are correct.
+**Purpose:** Final verification of all Part A steps. **Time:** ~15 minutes. **Result:** Confidence that everything is correct before Part B.
 </Info>
 
-## 1. Connection verification
+You'll verify connections (local → server, server → GitHub, VSCode Remote), the Git repository setup, Admin-Server structure, and binary path configuration.
 
-### Local SSH to server
+<Steps>
+  <Step title="Connection verification">
+    **Local SSH**
 
-From your **local** terminal:
+    From your **local** terminal:
 
-```bash
-ssh your-server-alias pwd
-# Expected: /home/your-username (or similar)
-ssh your-server-alias
-# Expected: Connects without password
-exit
-```
+    ```bash
+    ssh your-server-alias pwd
+    # Expected: /home/username
+    ssh your-server-alias
+    # Expected: Connects without password
+    exit
+    ```
 
-<Check>Local SSH to server works without a password.</Check>
+    <Check>Local SSH works.</Check>
 
-### Server → GitHub
+    **Server → GitHub**
 
-From local, run this on the server in one go:
+    Run this from your local machine; it executes the GitHub auth test on the server:
 
-```bash
-ssh your-server-alias 'ssh -T git@github.com'
-```
+    ```bash
+    ssh your-server-alias 'ssh -T git@github.com'
+    ```
+    Expected output: "Hi username! You've successfully authenticated"
 
-You should see: `Hi your-username! You've successfully authenticated...`
+    <Check>Server authenticates with GitHub.</Check>
 
-<Check>Server can authenticate with GitHub.</Check>
+    **VSCode Remote**
 
-### VSCode Remote
+    1. Open VSCode
+    2. **Remote-SSH: Connect to Host** → select your server alias
+    3. Verify the status bar shows "SSH: your-server-alias" and you can browse the server home directory
 
-1. **Remote-SSH: Connect to Host** → select your server alias.
-2. Confirm the status bar shows "SSH: your-server-alias" and you can browse the server home directory.
+    <Check>VSCode Remote works.</Check>
+  </Step>
 
-<Check>VSCode Remote connection works.</Check>
+  <Step title="Repository verification">
+    **Server Git repo**
 
-## 2. Repository verification
+    Run from your local machine:
 
-### Server Git repo
+    ```bash
+    ssh your-server-alias 'cd ~ && git status'
+    # Expected: "On branch main", "nothing to commit, working tree clean" (or similar)
+    ssh your-server-alias 'cd ~ && git log --oneline'
+    ssh your-server-alias 'cd ~ && git remote -v'
+    ```
 
-```bash
-ssh your-server-alias 'cd ~ && git status'
-# Expected: "On branch main", "nothing to commit, working tree clean" (or similar)
-ssh your-server-alias 'cd ~ && git log --oneline'
-ssh your-server-alias 'cd ~ && git remote -v'
-```
+    <Check>Server repo configured.</Check>
 
-<Check>Server home is a Git repo on `main` with `origin` pointing to GitHub.</Check>
+    **GitHub repo**
 
-### GitHub repo
+    In the browser, open your server repo on GitHub. Confirm README, .gitignore, Admin-Server directory, and recent commits are visible.
 
-In the browser, open your server repo on GitHub. Confirm:
+    <Check>GitHub synced.</Check>
+  </Step>
 
-- [ ] README is visible  
-- [ ] `.gitignore` is present  
-- [ ] **Admin-Server** directory is present  
-- [ ] A few commits in history  
+  <Step title="Admin-Server structure">
+    ```bash
+    ssh your-server-alias 'ls -la ~/Admin-Server'
+    # Expected: scripts/, config/, docs/, logs/
+    ssh your-server-alias 'ls -la ~/Admin-Server/config/'
+    # Expected: tracked-domains.conf, binary-paths.conf
+    ssh your-server-alias 'ls -la ~/Admin-Server/scripts/'
+    # Expected: .sh files with execute permission (x)
+    ```
 
-<Check>GitHub repo matches server.</Check>
+    Each directory should exist. The scripts folder should contain executable shell scripts used by deploy workflows.
 
-## 3. Admin-Server structure
+    <Check>Admin-Server structure correct.</Check>
+  </Step>
 
-```bash
-ssh your-server-alias 'ls -la ~/Admin-Server'
-# Expected: scripts/, config/, docs/, logs/
-ssh your-server-alias 'ls -la ~/Admin-Server/config/'
-# Expected: tracked-domains.conf, binary-paths.conf
-```
+  <Step title="Binary paths">
+    ```bash
+    ssh your-server-alias 'cat ~/Admin-Server/config/binary-paths.conf'
+    ```
 
-<Check>Admin-Server directories and config files exist.</Check>
+    Confirm each variable is set:
+    - **PHP_PATH** — real path (not placeholder), matches domain PHP version
+    - **COMPOSER_PATH** — path to Composer 2.x
+    - **NPM_PATH** — system path, NVM path, or "not_available" if frontend builds are not used
 
-## 4. Binary paths
+    <Check>Paths documented.</Check>
+  </Step>
 
-```bash
-ssh your-server-alias 'cat ~/Admin-Server/config/binary-paths.conf'
-```
+  <Step title="Automated verification script (optional)">
+    Run all checks via SSH in one command. Each line prints ✅ or ❌:
 
-Confirm:
+    <CodeGroup>
+    ```bash Single-command execution
+    ssh your-server-alias << 'EOF'
+    echo "[1] SSH Keys:" && test -f ~/.ssh/server_github_key && echo "  ✅" || echo "  ❌"
+    echo "[2] SSH Config:" && grep -q "Host github.com" ~/.ssh/config && echo "  ✅" || echo "  ❌"
+    echo "[3] GitHub Auth:" && ssh -T git@github.com 2>&1 | grep -q "successfully authenticated" && echo "  ✅" || echo "  ❌"
+    echo "[4] Git Repo:" && test -d ~/.git && echo "  ✅" || echo "  ❌"
+    echo "[5] Remote:" && git remote -v | grep -q origin && echo "  ✅" || echo "  ❌"
+    echo "[6] Admin-Server:" && test -d ~/Admin-Server && echo "  ✅" || echo "  ❌"
+    echo "[7] Scripts:" && ls ~/Admin-Server/scripts/*.sh >/dev/null 2>&1 && echo "  ✅" || echo "  ❌"
+    echo "[8] binary-paths.conf:" && test -f ~/Admin-Server/config/binary-paths.conf && echo "  ✅" || echo "  ❌"
+    EOF
+    ```
+    </CodeGroup>
 
-- [ ] `PHP_PATH` has the real path (not a placeholder)  
-- [ ] `COMPOSER_PATH` is set  
-- [ ] `NPM_PATH` is set or marked as not available  
+    All eight checks should show ✅ before proceeding to Part B. If any show ❌, fix the underlying setup (SSH keys, config, or Admin-Server structure) and re-run.
 
-<Check>Binary paths are documented and filled in.</Check>
+    <Tip>
+    Adjust key name (`server_github_key`) and paths if yours differ from the defaults.
+    </Tip>
+  </Step>
+</Steps>
 
-## 5. Quick verification script (optional)
+## Part A complete checklist
 
-From your **local** machine you can run a single script on the server to echo status. Example:
+Use this list to confirm everything is ready for Part B (deployment):
 
-```bash
-ssh your-server-alias << 'EOF'
-echo "[1] Server GitHub key:" && test -f ~/.ssh/server_github_key && echo "  ✅" || echo "  ❌"
-echo "[2] SSH config GitHub block:" && grep -q "Host github.com" ~/.ssh/config && echo "  ✅" || echo "  ❌"
-echo "[3] GitHub auth:" && ssh -T git@github.com 2>&1 | grep -q "successfully authenticated" && echo "  ✅" || echo "  ❌"
-echo "[4] Git repo:" && test -d ~/.git && echo "  ✅" || echo "  ❌"
-echo "[5] Admin-Server:" && test -d ~/Admin-Server && echo "  ✅" || echo "  ❌"
-echo "[6] binary-paths.conf:" && test -f ~/Admin-Server/config/binary-paths.conf && echo "  ✅" || echo "  ❌"
-EOF
-```
+<AccordionGroup>
+  <Accordion title="Local machine connects to server">
+    SSH config with Host alias, key pair installed, passwordless login working. `ssh your-server-alias` connects without prompts.
+  </Accordion>
+  <Accordion title="Server authenticates to GitHub">
+    Deploy key or SSH config configured for `git@github.com`. `ssh -T git@github.com` from the server returns success message.
+  </Accordion>
+  <Accordion title="Server home is Git repo">
+    Home directory is a Git repository, pushed to GitHub (private), on branch main. `git remote -v` shows origin.
+  </Accordion>
+  <Accordion title="Admin-Server structure">
+    scripts/, config/, docs/, logs/ present. Config folder contains tracked-domains.conf and binary-paths.conf.
+  </Accordion>
+  <Accordion title="Binary paths documented">
+    PHP_PATH, COMPOSER_PATH, NPM_PATH in binary-paths.conf with real values (or "not_available" for NPM when optional).
+  </Accordion>
+  <Accordion title="All verification tests pass">
+    SSH, GitHub auth, Git repo, Admin-Server structure, and binary paths all verified. Ready for deploy scripts.
+  </Accordion>
+</AccordionGroup>
 
-Adjust key name (`server_github_key`) and paths if yours differ.
+## Ready for Part B
 
-## Part A complete
+When all verification steps pass, the server is ready for Part B: deployment scripts (e.g. deploy.php), Laravel projects, domain tracking via `tracked-domains.conf`, and project-specific configuration. The binary paths in `binary-paths.conf` will be used by deploy scripts when running `php`, `composer`, and `npm` commands.
 
-If all items above pass:
+<Note>
+If any check fails, return to the corresponding setup guide (SSH, GitHub auth, Admin-Server, or binary paths) and fix the issue before deploying.
+</Note>
 
-- [ ] Local machine connects to the server with SSH  
-- [ ] Server authenticates to GitHub  
-- [ ] Server home is a Git repo and pushed to GitHub  
-- [ ] Admin-Server structure and config exist  
-- [ ] Binary paths are documented  
+## What's next
 
-You’re ready for **Part B** (e.g. Laravel deployment, deploy scripts, and project-specific setup).
+<Columns cols={3}>
+  <Card title="Security hardening" icon="shield-halved" href="/guides/servers/security-hardening">
+    Harden firewall, fail2ban, and updates before or after deploying.
+  </Card>
+  <Card title="Monitoring" icon="chart-line" href="/guides/servers/monitoring">
+    Uptime, health checks, and alerting for your server.
+  </Card>
+  <Card title="Backups" icon="floppy-disk" href="/guides/servers/backups">
+    Server and database backup tools and schedules.
+  </Card>
+</Columns>
 
-<Card title="Security hardening" icon="shield-halved" href="/guides/servers/security-hardening">
-  Harden the server (firewall, fail2ban, updates) before or after deploying apps.
-</Card>
+---
 
-<Card title="Monitoring" icon="chart-line" href="/guides/servers/monitoring">
-  Add monitoring and alerting for uptime and health.
-</Card>
+**Part A recap:** Local SSH → server, server → GitHub, Git repo with Admin-Server, binary paths in config. You're ready to deploy.
