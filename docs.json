@@ -16,10 +16,11 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Getting Started",
+        "icon": "rocket",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Welcome",
             "pages": [
               "index",
               "quickstart",
@@ -27,7 +28,8 @@
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Writing docs",
+            "icon": "pen-fancy",
             "pages": [
               "essentials/markdown",
               "essentials/code",
@@ -37,28 +39,135 @@
           },
           {
             "group": "Customization",
+            "icon": "palette",
             "pages": [
               "essentials/settings",
               "essentials/navigation"
             ]
+          }
+        ]
+      },
+      {
+        "tab": "Guides",
+        "icon": "book-open",
+        "groups": [
+          {
+            "group": "Servers",
+            "icon": "server",
+            "pages": [
+              "guides/servers/vps-setup",
+              "guides/servers/ssh-config",
+              "guides/servers/security-hardening",
+              "guides/servers/monitoring"
+            ]
           },
           {
-            "group": "AI tools",
+            "group": "Laravel",
+            "icon": "laravel",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "guides/laravel/installation",
+              "guides/laravel/deployment",
+              "guides/laravel/packages"
+            ]
+          },
+          {
+            "group": "Databases",
+            "icon": "database",
+            "pages": [
+              "guides/databases/mysql",
+              "guides/databases/postgresql",
+              "guides/databases/redis"
+            ]
+          },
+          {
+            "group": "DevOps",
+            "icon": "gears",
+            "pages": [
+              "guides/devops/git-workflows",
+              "guides/devops/ci-cd",
+              "guides/devops/docker"
+            ]
+          },
+          {
+            "group": "Security",
+            "icon": "shield-halved",
+            "pages": [
+              "guides/security/ssl-dns",
+              "guides/security/authentication",
+              "guides/security/app-security"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Products",
+        "icon": "grid-2",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "products/overview"
+            ]
+          },
+          {
+            "group": "Custojo",
+            "icon": "users",
+            "pages": [
+              "products/custojo/overview",
+              "products/custojo/quickstart",
+              "products/custojo/api"
+            ]
+          },
+          {
+            "group": "Waraq",
+            "icon": "code",
+            "pages": [
+              "products/waraq/overview",
+              "products/waraq/quickstart",
+              "products/waraq/sdk"
+            ]
+          },
+          {
+            "group": "DeployVault",
+            "icon": "server",
+            "pages": [
+              "products/deployvault/overview",
+              "products/deployvault/quickstart"
+            ]
+          },
+          {
+            "group": "LMS",
+            "icon": "graduation-cap",
+            "pages": [
+              "products/lms/overview",
+              "products/lms/quickstart"
+            ]
+          },
+          {
+            "group": "ResiBoard",
+            "icon": "building",
+            "pages": [
+              "products/resiboard/overview"
+            ]
+          },
+          {
+            "group": "RepoMemo",
+            "icon": "book",
+            "pages": [
+              "products/repomemo/overview"
             ]
           }
         ]
       },
       {
         "tab": "API Reference",
+        "icon": "code",
         "groups": [
           {
             "group": "Overview",
             "pages": [
-              "api-reference/introduction"
+              "api-reference/introduction",
+              "api-reference/authentication"
             ]
           },
           {
@@ -71,6 +180,35 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Tools",
+        "icon": "wrench",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "tools/overview"
+            ]
+          },
+          {
+            "group": "AI coding tools",
+            "icon": "microchip",
+            "pages": [
+              "ai-tools/cursor",
+              "ai-tools/claude-code",
+              "ai-tools/windsurf"
+            ]
+          },
+          {
+            "group": "Reviews and comparisons",
+            "icon": "star",
+            "pages": [
+              "tools/reviews",
+              "tools/comparisons"
+            ]
+          }
+        ]
       }
     ],
     "global": {
@@ -79,6 +217,11 @@
           "anchor": "GitHub",
           "icon": "github",
           "href": "https://github.com/rovony"
+        },
+        {
+          "anchor": "Blog",
+          "icon": "newspaper",
+          "href": "https://blog.zajaly.dev"
         }
       ]
     }
@@ -110,7 +253,24 @@
     "socials": {
       "github": "https://github.com/rovony",
       "x": "https://x.com/zajaly"
-    }
+    },
+    "links": [
+      {
+        "header": "Resources",
+        "items": [
+          { "label": "Blog", "href": "https://blog.zajaly.dev" },
+          { "label": "Changelog", "href": "https://changelog.zajaly.dev" }
+        ]
+      },
+      {
+        "header": "Products",
+        "items": [
+          { "label": "Custojo", "href": "/products/custojo/overview" },
+          { "label": "Waraq", "href": "/products/waraq/overview" },
+          { "label": "DeployVault", "href": "/products/deployvault/overview" }
+        ]
+      }
+    ]
   },
   "appearance": {
     "default": "dark"
