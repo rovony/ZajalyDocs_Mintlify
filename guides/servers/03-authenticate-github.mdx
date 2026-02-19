@@ -18,18 +18,14 @@ Add the server's public SSH key to your GitHub account so the server can clone, 
 
 <Steps>
   <Step title="Copy the public key">
-    1. If the terminal from A2 is still open, the key output is there. Otherwise, on the server run:
-    2. Run `cat ~/.ssh/server_github_key.pub` and copy the entire line.
-    3. The line starts with `ssh-ed25519` and ends with a date stamp comment.
+    If the terminal from A2 is still open, the key is already displayed. Otherwise, on the server:
 
     ```bash
     cat ~/.ssh/server_github_key.pub
+    # Expected: one line starting with ssh-ed25519, ending with date stamp comment
     ```
 
-    ```
-    ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIexample... server@yourdomain.com
-    # Expected: one line starting with ssh-ed25519, ending with comment
-    ```
+    Copy the **entire line** — it starts with `ssh-ed25519` and ends with a comment like `server-github-20251030`.
 
     <Danger>Never share or commit the **private** key (`server_github_key`). Only the `.pub` file goes to GitHub.</Danger>
 

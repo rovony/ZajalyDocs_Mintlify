@@ -122,26 +122,24 @@ Wrong paths = deployment failures. Document before running deploy scripts.
   <Step title="Document paths in binary-paths.conf">
     Create the config file:
 
-    <CodeGroup>
-    ```bash binary-paths.conf template
+    ```bash
     cat > ~/Admin-Server/config/binary-paths.conf << 'EOF'
-    # Binary paths (discovered in Part A5)
-    # PHP: per-domain, e.g. /opt/alt/php83 for domain with PHP 8.3
-    PHP_PATH=/opt/alt/php83/usr/bin/php
+# Binary paths (discovered in Part A5)
+# PHP: per-domain, e.g. /opt/alt/php83 for domain with PHP 8.3
+PHP_PATH=/opt/alt/php83/usr/bin/php
 
-    # Composer 2.x required for Laravel
-    COMPOSER_PATH=/usr/local/bin/composer
+# Composer 2.x required for Laravel
+COMPOSER_PATH=/usr/local/bin/composer
 
-    # NPM: system or NVM path
-    NPM_PATH=/usr/bin/npm
-    # Or if using NVM: NPM_PATH=/home/user/.nvm/versions/node/v20.x.x/bin/npm
+# NPM: system or NVM path
+NPM_PATH=/usr/bin/npm
+# Or if using NVM: NPM_PATH=/home/user/.nvm/versions/node/v20.x.x/bin/npm
 
-    # Usage in deploy.php:
-    # set('bin/php', getenv('PHP_PATH') ?: '/opt/alt/php83/usr/bin/php')
-    # set('bin/composer', function() { return getenv('COMPOSER_PATH') ?: '/usr/local/bin/composer'; })
-    EOF
+# Usage in deploy.php:
+# set('bin/php', getenv('PHP_PATH') ?: '/opt/alt/php83/usr/bin/php')
+# set('bin/composer', function() { return getenv('COMPOSER_PATH') ?: '/usr/local/bin/composer'; })
+EOF
     ```
-    </CodeGroup>
 
     Edit with your actual paths:
 
