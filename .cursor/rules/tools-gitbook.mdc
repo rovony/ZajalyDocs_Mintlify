@@ -1,0 +1,537 @@
+---
+description: Use when writing, editing, verifying, or fixing GitBook content — applies to any file inside a GitBook-synced space (ZajDocs/, ZajProjects/), SUMMARY.md, .gitbook.yaml, or when the user mentions GitBook publishing
+alwaysApply: false
+---
+
+# GitBook Workflow
+
+## 1 — Architecture
+
+### Monorepo Layout
+
+One GitHub repo (`rovony/ZajalyDocs`) powers multiple GitBook spaces via monorepo Git Sync.
+
+| Space | Synced Folder | Published URL |
+|---|---|---|
+| ZajalyDocs | `ZajDocs/` | `zajaly.gitbook.io/docs` |
+| Custojo | `ZajProjects/Custojo/` | `zajaly.gitbook.io/custojo` |
+| Waraq | `ZajProjects/Waraq/` | `zajaly.gitbook.io/waraq` |
+
+Add more product spaces later under `ZajProjects/[Product]/`. Paths must never overlap (no parent/child nesting between spaces).
+
+### Required Files Per Space
+
+Every synced folder must contain these three files:
+
+| File | Purpose |
+|---|---|
+| `.gitbook.yaml` | Tells GitBook how to parse the folder |
+| `README.md` | Homepage of the space |
+| `SUMMARY.md` | Sidebar navigation (table of contents) |
+
+### .gitbook.yaml Template
+
+```yaml
+root: ./
+
+structure:
+  readme: README.md
+  summary: SUMMARY.md
+```
+
+This is identical for every space. Copy verbatim.
+
+### Redirects (in .gitbook.yaml)
+
+When you rename or move a file, Git creates a new file and deletes the old one — GitBook cannot detect renames. Add redirects to prevent broken URLs:
+
+```yaml
+root: ./
+
+structure:
+  readme: README.md
+  summary: SUMMARY.md
+
+redirects:
+  old-folder/old-page: new-folder/new-page.md
+  guides/setup: guides/servers/setup/vps-setup.md
+```
+
+Rules:
+- Key = old path (without leading slash), Value = new file path (relative to root)
+- The old page must be **removed** — redirects only fire if no page exists at the old path
+- Use a YAML linter to validate; bad indentation silently breaks redirects
+- Always add a redirect when renaming or moving a published page
+
+---
+
+## 2 — Writing GitBook-Compatible Markdown
+
+### Standard Markdown
+
+All standard markdown works: headings, paragraphs, lists, tables, code blocks, images, bold, italic, links.
+
+### Links — Critical Rule
+
+GitBook does NOT support Obsidian wikilinks. Always use relative markdown links:
+
+- **Correct:** `[VPS Setup](Guides/Servers/Setup/vps-setup.md)`
+- **Wrong:** `[[vps-setup]]`
+
+When linking between pages in the same space, use paths relative to the current file's location.
+
+### Code Blocks
+
+Always specify a language:
+
+````markdown
+```bash
+echo "hello"
+```
+````
+
+For titled code blocks (renders with a filename header in GitBook):
+
+```
+{% code title="index.js" overflow="wrap" %}
+```javascript
+const x = 1;
+```
+{% endcode %}
+```
+
+### GitBook-Specific Blocks
+
+These use Liquid-style `{% %}` tags. Every opening tag MUST have a matching closing tag.
+
+#### When to Use Which Block
+
+| Block | Use When | Don't Use When |
+|---|---|---|
+| **Hints** | Warnings, prerequisites, tips, success confirmations — anything the reader must not miss | Every other paragraph; overuse dilutes their impact |
+| **Tabs** | Same task has parallel alternatives (npm vs yarn, VPS vs shared hosting, macOS vs Linux) | Steps that must be done in sequence — use steppers instead |
+| **Steppers** | A multi-step procedure where order matters (setup wizard, deploy flow, checklist progression) | Unordered options or comparisons — use tabs instead |
+| **Expandable** | Supplementary detail that most readers can skip (algorithm comparison, "what each header does") | Critical information the reader needs — they may never expand it |
+| **Cards** | Landing/overview pages linking to 3+ child pages with descriptions | Inline navigation within a guide — use regular links |
+| **Titled code** | Config files, scripts, or snippets where the filename matters (`nginx.conf`, `deploy.sh`) | Short one-liner commands — a plain code block is enough |
+| **Columns** | Side-by-side comparison of code vs output, or text alongside an image | Long content that would be unreadable in a narrow column |
+| **Buttons** | Primary CTAs on landing pages ("Get Started", "API Reference") | Body of a guide — use regular markdown links |
+| **Embeds** | External media (YouTube, Figma, CodeSandbox) | Linking to internal pages — use relative markdown links |
+
+#### Hints (callouts)
+
+```markdown
+{% hint style="info" %}
+Useful information the reader should know.
+{% endhint %}
+```
+
+Styles and when to pick each:
+- `info` — general tips, context, "good to know"
+- `warning` — something could go wrong if ignored (data loss, lockout risk)
+- `danger` — will break things if skipped (firewall lockout, root-only operations)
+- `success` — confirmation that a step is complete, or a positive outcome
+
+#### Tabs
+
+Use for **parallel alternatives** where the reader picks one path.
+
+```markdown
+{% tabs %}
+{% tab title="npm" %}
+```bash
+npm install package
+```
+{% endtab %}
+{% tab title="yarn" %}
+```bash
+yarn add package
+```
+{% endtab %}
+{% endtabs %}
+```
+
+Good tab scenarios: package managers, OS-specific commands, VPS vs shared hosting, different frameworks.
+
+#### Steppers (numbered steps)
+
+Use for **sequential procedures** where order matters, or to visualize a multi-phase checklist.
+
+```markdown
+{% stepper %}
+{% step %}
+#### Step title
+Step content here.
+{% endstep %}
+{% step %}
+#### Next step
+More content.
+{% endstep %}
+{% endstepper %}
+```
+
+Good stepper scenarios: deploy flows, onboarding wizards, "what's next" progressions, grouped checklists.
+
+#### Columns (side-by-side layout)
+
+Use for **visual comparisons** — code next to output, text next to an image.
+
+```markdown
+{% columns %}
+{% column %}
+Left column content.
+{% endcolumn %}
+{% column %}
+Right column content.
+{% endcolumn %}
+{% endcolumns %}
+```
+
+#### Embeds
+
+Use for **external media** — YouTube videos, Figma prototypes, CodeSandbox demos.
+
+```markdown
+{% embed url="https://www.youtube.com/watch?v=abc123" %}
+```
+
+#### Expandable Sections
+
+Use for **supplementary detail** that most readers can skip without losing the main thread.
+
+```markdown
+<details>
+<summary>Click to expand</summary>
+
+Hidden content goes here.
+
+</details>
+```
+
+Good expandable scenarios: algorithm comparisons, "what does each option do", verbose command output, edge-case notes.
+
+#### Cards (HTML table with data-view)
+
+Use on **landing/overview pages** to link to child pages with visual tiles.
+
+```html
+<table data-view="cards"><thead><tr><th></th><th></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody>
+<tr><td><strong>Card Title</strong></td><td>Description</td><td><a href="page.md">page.md</a></td></tr>
+</tbody></table>
+```
+
+Use `data-card-size="large"` on the `<table>` for wider cards.
+
+#### Buttons
+
+Use for **primary CTAs on landing pages** only — not inside guide content.
+
+```markdown
+<a href="getting-started.md" class="button primary">Get Started</a>
+<a href="api-reference.md" class="button secondary">API Reference</a>
+```
+
+Add `data-icon="rocket-launch"` for a FontAwesome icon prefix.
+
+#### Math & TeX (KaTeX)
+
+Block equation (renders on its own line):
+
+```markdown
+$$f(x) = x \cdot e^{2 \pi i \xi x}$$
+```
+
+Inline equation (within a paragraph):
+
+```markdown
+The Pythagorean theorem states that $a^2 + b^2 = c^2$ for right triangles.
+```
+
+GitBook uses KaTeX — see [supported functions](https://katex.org/docs/supported.html).
+
+#### Annotations (Footnotes)
+
+```markdown
+GitBook supports annotations[^1] that readers can hover to read.
+
+[^1]: This is the annotation text that appears on hover.
+```
+
+#### Drawings (Excalidraw)
+
+GitBook has built-in Excalidraw support. Drawings are stored as `.drawing.svg` files. These can only be created in the GitBook UI (press `/` → Drawing), not via Git. When synced to Git, they appear as SVG files in a `.gitbook/assets/` folder.
+
+#### OpenAPI Blocks
+
+For product docs with API references, GitBook can render OpenAPI 3.0/3.1 specs:
+
+```yaml
+# In .gitbook.yaml or via GitBook UI
+# Upload an OpenAPI spec file, or link to a hosted URL
+# GitBook auto-generates interactive API pages
+```
+
+OpenAPI blocks always render full-width. Most relevant for `ZajProjects/` product spaces, not `ZajDocs/` guides.
+
+#### Frontmatter Fields GitBook Recognizes
+
+GitBook reads these frontmatter fields:
+
+```yaml
+---
+description: A short page description for SEO and page metadata
+icon: bolt
+---
+```
+
+- `description` — appears in search results and link previews; keep under 160 characters
+- `icon` — FontAwesome icon name (no `fa-` prefix); shown next to the page title in the sidebar
+
+ZajalyDocs files include additional frontmatter fields (`title`, `type`, `status`, `tags`, etc.) per `file-standards.mdc`. GitBook ignores unrecognized fields but preserves them in Git.
+
+### Images
+
+For simple images, standard markdown works:
+
+```markdown
+![Alt text](path/to/image.png)
+```
+
+For captioned images (renders nicely in GitBook):
+
+```html
+<figure><img src="path/to/image.png" alt="Alt text"><figcaption>Caption here</figcaption></figure>
+```
+
+Store space-specific images in a `.gitbook/assets/` subfolder within the space root.
+
+---
+
+## 3 — SUMMARY.md Management
+
+`SUMMARY.md` defines the sidebar navigation. Only pages listed here appear in the published sidebar.
+
+### Format Rules
+
+```markdown
+# Summary
+
+## Section Name
+
+- [Page Title](relative/path.md)
+  - [Nested Page](relative/path/nested.md)
+
+### Subsection Name
+
+- [Another Page](another.md)
+```
+
+- H1 (`#`) — file title, use `# Summary` or `# Table of contents`
+- H2 (`##`) — top-level sidebar groups
+- H3 (`###`) — nested sidebar groups within a section
+- List items (`-` or `*`) — pages; indent 4 spaces for nesting under a parent page
+- Links — always relative paths from the space root
+- GitBook's official examples use `*` but `-` also works
+
+### Page Link Titles (Sidebar Override)
+
+To show a different title in the sidebar than the page's H1:
+
+```markdown
+* [Full Page Title](page.md "Short Sidebar Title")
+```
+
+The quoted text overrides the sidebar, pagination buttons, and relative link text. Optional — if omitted, the page's main title is used everywhere.
+
+### No Duplicate Pages
+
+A `.md` file can only appear **once** in SUMMARY.md. Listing the same file under two sections will cause sync errors because it implies one page at two different URLs.
+
+### When to Update SUMMARY.md
+
+| Action | SUMMARY.md Change |
+|---|---|
+| Add a new page | Add a `- [Title](path.md)` entry in the correct section |
+| Rename a file | Update the path in the existing entry |
+| Move a file | Update the path in the existing entry |
+| Delete a page | Remove the entry |
+| Reorder sidebar | Reorder the list items |
+| Add a new folder | Use a `## Section` or `### Subsection` heading in SUMMARY.md to group the pages, OR add a folder `README.md` as the parent entry |
+
+### Folder README.md — When to Create One
+
+GitBook does **not** require a `README.md` inside every subfolder. Only the **space root** README.md is required (it becomes the homepage).
+
+**Create a subfolder README.md when:**
+- The folder represents a **major section** that deserves its own landing/overview page (e.g., `Guides/Servers/README.md` for the Servers section)
+- You want a clickable parent entry in the sidebar that shows an overview before the reader picks a child page
+- The folder will be referenced as a parent in SUMMARY.md: `- [Server Guides](Guides/Servers/README.md)`
+
+**Skip the subfolder README.md when:**
+- The folder is a **leaf grouping** with only 1-2 pages (e.g., `Guides/Servers/Setup/` with just `vps-setup.md`)
+- The SUMMARY.md heading (`## Section Name` or `### Subsection`) is sufficient to group the pages
+- You don't need a landing page — the child pages speak for themselves
+
+**GitBook's official pattern** (from their Product-Docs template): subfolders like `getting-started/` and `basics/` have no README.md. The `## Getting Started` heading in SUMMARY.md creates the sidebar group directly.
+
+**Two valid SUMMARY.md patterns:**
+
+With subfolder README.md (section has its own overview page):
+
+```markdown
+### Servers
+
+- [Server Guides](Guides/Servers/README.md)
+  - [VPS Setup](Guides/Servers/Setup/vps-setup.md)
+  - [SSH Keys](Guides/Servers/SSH/ssh-keys.md)
+```
+
+Without subfolder README.md (heading groups pages directly):
+
+```markdown
+### Servers
+
+- [VPS Setup](Guides/Servers/Setup/vps-setup.md)
+- [SSH Keys](Guides/Servers/SSH/ssh-keys.md)
+```
+
+---
+
+## 4 — Writing Workflow (New Content)
+
+Follow these steps in order when creating new GitBook-published content:
+
+1. **Identify the target space.** Guides and tools go in `ZajDocs/`. Product docs go in `ZajProjects/[Product]/`.
+2. **Check for existing content.** Search the target space for related pages before creating a new one.
+3. **Create the file** in the correct subfolder. Include full ZajalyDocs frontmatter (per `file-standards.mdc`).
+4. **Use relative markdown links** for all cross-references within the space. No wikilinks.
+5. **Use GitBook blocks** where appropriate (hints for callouts, tabs for platform-specific commands, steppers for tutorials).
+6. **Update SUMMARY.md** in the space root — add the new page in the correct section.
+7. **If creating a new major section folder**, optionally create a `README.md` inside it as a landing page. Skip this for leaf folders with only 1-2 pages — use a SUMMARY.md heading to group them instead.
+8. **Verify** using the checklist in Section 5 below.
+
+### Dual-Format Content (Obsidian + GitBook)
+
+Files in `ZajDocs/` are consumed by both Obsidian and GitBook:
+
+- ZajalyDocs frontmatter is kept in files (GitBook may ignore non-standard fields, but they're preserved in Git)
+- Use standard markdown for maximum compatibility
+- GitBook-specific `{% %}` blocks render only in GitBook; in Obsidian they appear as raw text — this is acceptable
+- Prefer `> [!NOTE]` callout syntax only if the file will NOT be published to GitBook; use `{% hint %}` if it will be
+
+---
+
+## 5 — Verification Checklist
+
+Run through this checklist after writing or editing any GitBook-published content:
+
+- [ ] **Correct location** — file is inside a GitBook-synced folder (`ZajDocs/` or `ZajProjects/[Product]/`)
+- [ ] **SUMMARY.md updated** — new page has a `- [Title](path.md)` entry in the right space's SUMMARY.md
+- [ ] **No wikilinks** — all internal links use `[text](relative/path.md)`, not `[[wikilinks]]`
+- [ ] **No broken links** — every linked file actually exists at the referenced path
+- [ ] **GitBook blocks matched** — every `{% tag %}` has its closing `{% endtag %}`
+- [ ] **Code blocks have language** — every fenced code block specifies a language (```bash, ```javascript, etc.)
+- [ ] **Frontmatter complete** — all required fields present per `file-standards.mdc`, plus `description` for GitBook SEO (under 160 chars)
+- [ ] **Space root README.md** — the space root has a README.md homepage. Subfolder README.md files are optional (only needed for major sections that deserve a landing page)
+- [ ] **Images accessible** — image paths are correct; external URLs are reachable
+- [ ] **.gitbook.yaml exists** — the space root has the config file (only check when setting up a new space)
+
+### Automated Verification Steps
+
+When asked to verify GitBook content, perform these checks programmatically:
+
+1. **Link check:** Search for `[[` in all `.md` files within the space — flag any wikilinks found.
+2. **SUMMARY.md sync:** List all `.md` files in the space, compare against entries in SUMMARY.md — flag unlisted pages (excluding subfolder README.md files that serve as optional section indexes).
+3. **Block matching:** Search for `{% ` tags and verify each opening tag has a corresponding closing tag.
+4. **Space root README:** Verify the space root has a README.md. Subfolder README.md files are optional — only flag if a subfolder README.md is referenced in SUMMARY.md but doesn't exist.
+
+---
+
+## 6 — Editing and Fixing
+
+### Common Issues
+
+| Problem | Cause | Fix |
+|---|---|---|
+| Page missing from sidebar | Not in SUMMARY.md | Add `- [Title](path.md)` to SUMMARY.md |
+| Broken link in GitBook | Wrong relative path or file renamed/moved | Correct the path; search for old filename in all SUMMARY.md and .md files |
+| GitBook block not rendering | Missing closing tag or typo in tag name | Ensure every `{% tag %}` has `{% endtag %}` |
+| Sync conflict / unexpected commits | Edited config files in GitBook UI | Always edit README.md, SUMMARY.md, .gitbook.yaml in Git only |
+| Frontmatter disappears in GitBook | GitBook strips unrecognized frontmatter on round-trip | Keep frontmatter in Git; set sync direction to GitHub → GitBook |
+| Wikilinks render as raw text | GitBook doesn't support `[[wikilinks]]` | Convert to `[text](relative/path.md)` |
+| Image not displaying | Wrong path or missing file | Use relative path from file location or full URL; store in `.gitbook/assets/` |
+| GitBook reformats markdown | GitBook normalizes whitespace and link format on sync | Avoid editing same file in both GitBook UI and Git; Git is source of truth |
+| Two spaces show same content | Overlapping monorepo paths | Ensure paths are siblings, not nested (e.g., `ZajDocs/` and `ZajProjects/Custojo/`) |
+| Old URL returns 404 after rename | Git renames = delete + create; GitBook can't detect renames | Add a `redirects:` entry in `.gitbook.yaml` mapping old path to new file |
+| Same page listed twice in sidebar | Duplicate entry in SUMMARY.md | Remove the duplicate — each `.md` file can only appear once in SUMMARY.md |
+
+### Fixing Workflow
+
+When asked to fix GitBook content:
+
+1. **Identify the space** the file belongs to.
+2. **Read the file** and its space's SUMMARY.md.
+3. **Run verification checklist** (Section 5) against the file.
+4. **Fix all issues found** — update the file, SUMMARY.md, or both.
+5. **Check neighboring files** if the issue might affect other pages (e.g., a renamed folder).
+6. **Update frontmatter** — bump `updated:` date and `version:` if the fix is substantial.
+
+---
+
+## 7 — New Space Setup (Adding a Product)
+
+When creating a new GitBook space for a product:
+
+### Step 1 — Create Folder Structure
+
+```
+ZajProjects/[Product]/
+├── .gitbook.yaml      ← copy from ZajDocs/.gitbook.yaml (identical)
+├── README.md          ← product homepage
+├── SUMMARY.md         ← initial navigation
+└── getting-started.md ← first content page (optional but recommended)
+```
+
+### Step 2 — .gitbook.yaml
+
+```yaml
+root: ./
+
+structure:
+  readme: README.md
+  summary: SUMMARY.md
+```
+
+### Step 3 — README.md
+
+```markdown
+# [Product Name] Documentation
+
+[One-line description of the product and who this documentation is for.]
+```
+
+### Step 4 — SUMMARY.md
+
+```markdown
+# Summary
+
+## Getting Started
+
+- [Overview](README.md)
+- [Quick Start](getting-started.md)
+```
+
+### Step 5 — Connect in GitBook (manual)
+
+1. GitBook dashboard → **+ New space** → name it `[Product]`
+2. Space → Settings → Integrations → GitHub → select `rovony/ZajalyDocs` → branch `main` → project directory `ZajProjects/[Product]`
+3. Sync direction: GitHub → GitBook
+4. Create Docs Site → set slug → publish
+
+### Step 6 — Verify
+
+- [ ] Space shows imported content from the correct subfolder
+- [ ] Sidebar matches SUMMARY.md
+- [ ] Homepage (README.md) renders correctly
+- [ ] Docs Site accessible at `zajaly.gitbook.io/[slug]`
+- [ ] Bidirectional sync works (edit in Git → appears in GitBook)

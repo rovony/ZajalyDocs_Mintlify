@@ -1,0 +1,37 @@
+---
+description: ZajalyDocs workflow — rules for creating new content, editing existing docs, and AI behavior in the vault
+alwaysApply: true
+---
+
+# ZajalyDocs Workflow
+
+## Creating New Content
+
+1. Check if a related doc already exists (search first).
+2. Use the appropriate template from `ZajDocs/Defaults/Templates/`.
+3. Place in the correct folder:
+   - Tech how-tos/SOPs → `ZajDocs/Guides/[Topic]/`
+   - Product-specific knowledge → `ZajProjects/[Product]/`
+   - Tool reviews/comparisons → `ZajDocs/Tools/`
+   - Blog posts → `ZajContent/Blog/Drafts/`
+   - Course lessons → `ZajContent/Courses/[EN|ES|AR]/`
+4. Add all frontmatter fields.
+5. Link to related docs using `[[wikilinks]]`.
+6. If sources are provided but incomplete, search the web to fill gaps.
+7. If sources are unorganized, extract into a series of step-by-step pages.
+
+## Editing Existing Content
+
+1. Update the `updated:` date in frontmatter.
+2. If major changes, bump the `version:`.
+3. Add a changelog entry if the file has a changelog table.
+4. Check for broken `[[wikilinks]]`.
+5. Verify code blocks still work.
+
+## AI Behavior
+
+- When asked to create a guide from sources, first analyze gaps, then structure as a series of files if the topic is large.
+- When asked to create a topic, create an index file + sub-files for each major section.
+- Always suggest related existing docs that should be linked.
+- Flag any outdated information found during editing.
+- Use the templates in `ZajDocs/Defaults/Templates/` as starting points.

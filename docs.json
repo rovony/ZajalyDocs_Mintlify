@@ -1,50 +1,20 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "willow",
-  "name": "Zajaly Docs",
+  "name": "Zajaly Developer Docs",
+  "description": "Developer documentation for Zajaly APIs, SDKs, and tools.",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "favicon": "/favicon.svg",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
     "dark": "#15803D"
   },
-  "favicon": "/favicon.svg",
   "navigation": {
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "icon": "book-open-cover",
-          "href": "https://mintlify.com/docs"
-        },
-        {
-          "anchor": "Blog",
-          "icon": "newspaper",
-          "href": "https://mintlify.com/blog"
-        }
-      ]
-    },
     "tabs": [
-      {
-        "tab": "Defaults",
-        "icon": "star-shooting",
-        "dropdowns": [
-          {
-            "dropdown": "test-dropdown",
-            "pages": [
-              "test",
-              {
-                "group": "group2",
-                "pages": [
-                  "test2"
-                ]
-              }
-            ]
-          },
-          {
-            "dropdown": "dropdown2"
-          }
-        ]
-      },
       {
         "tab": "Guides",
         "groups": [
@@ -57,19 +27,19 @@
             ]
           },
           {
-            "group": "Customization",
-            "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
             "group": "Writing content",
             "pages": [
               "essentials/markdown",
               "essentials/code",
               "essentials/images",
               "essentials/reusable-snippets"
+            ]
+          },
+          {
+            "group": "Customization",
+            "pages": [
+              "essentials/settings",
+              "essentials/navigation"
             ]
           },
           {
@@ -83,16 +53,16 @@
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API Reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Overview",
             "pages": [
               "api-reference/introduction"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Endpoints",
             "pages": [
               "api-reference/endpoint/get",
               "api-reference/endpoint/create",
@@ -101,38 +71,29 @@
             ]
           }
         ]
-      },
-      {
-        "tab": "Tools"
-      },
-      {
-        "tab": "Components",
-        "dropdowns": [
-          {
-            "dropdown": "DropDown"
-          },
-          {
-            "dropdown": "Dropdown2"
-          }
-        ]
       }
-    ]
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "GitHub",
+          "icon": "github",
+          "href": "https://github.com/rovony"
+        }
+      ]
+    }
   },
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:help@zajaly.com"
+        "type": "github",
+        "href": "https://github.com/rovony/ZajalyDocs_Mintlify"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Get Started",
+      "href": "https://app.zajaly.dev"
     }
   },
   "contextual": {
@@ -141,26 +102,20 @@
       "view",
       "chatgpt",
       "claude",
-      "perplexity",
-      "mcp",
       "cursor",
-      "vscode"
+      "mcp"
     ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/rovony",
+      "x": "https://x.com/zajaly"
     }
   },
   "appearance": {
     "default": "dark"
   },
   "fonts": {
-    "family": "Poppins",
-    "weight": 500,
-    "format": "woff",
     "heading": {
       "family": "Montserrat",
       "weight": 400
@@ -170,10 +125,6 @@
       "weight": 400
     }
   },
-  "banner": {
-  "content": "Welcome to Zajaly Docs — under construction!",
-  "dismissible": false
-  },
   "styling": {
     "eyebrows": "section",
     "latex": true
@@ -181,16 +132,13 @@
   "icons": {
     "library": "fontawesome"
   },
-  "thumbnails": {
-    "appearance": "light"
-  },
   "search": {
-    "prompt": "Ask away..."
+    "prompt": "Search docs..."
   },
   "seo": {
+    "metatags": {
+      "og:site_name": "Zajaly Developer Docs"
+    },
     "indexing": "navigable"
-  },
-  "metadata": {
-    "timestamp": true
   }
 }

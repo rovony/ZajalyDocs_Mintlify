@@ -1,0 +1,77 @@
+---
+description: ZajalyDocs content structure — templates for guides, SOPs, reviews, comparisons, and folder placement conventions
+alwaysApply: true
+---
+
+# ZajalyDocs Content Structure
+
+## Guide Structure
+
+1. **Purpose** — what this guide helps you accomplish
+2. **Prerequisites** — what you need before starting
+3. **Steps** — numbered, with expected results
+4. **Verification** — how to confirm it worked
+5. **Troubleshooting** — common issues and fixes
+6. **Related** — links to related docs
+
+## SOP Structure
+
+1. **Purpose** — what problem this SOP solves
+2. **Scope** — who and when this applies
+3. **Prerequisites** — what must be true first
+4. **Steps** — numbered with actions and expected results
+5. **Edge Cases** — what can go wrong
+6. **Related Docs**
+7. **Changelog table**
+
+## Tool Review Structure
+
+1. **Overview** — what the tool does
+2. **Pricing** — current tiers and costs
+3. **Key Features** — what matters for Zajaly
+4. **Pros / Cons**
+5. **Verdict** — use it or not, and when
+6. **Alternatives**
+
+## Comparison Structure
+
+1. **Overview** — what's being compared and why
+2. **Comparison Table** — features vs tools
+3. **Analysis** — detailed breakdown
+4. **Verdict** — which tool for which use case
+
+## Root Folder Conventions
+
+| Root Folder | Purpose |
+|-------------|---------|
+| `_Admin/` | Vault config, setup guides, scripts, utility apps, business ops — never publish |
+| `_Inbox/` | Universal capture zone — process weekly |
+| `_Sources/` | External raw material by topic |
+| `ZajContent/` | Blog + Courses — publishing outputs derived from ZajDocs |
+| `ZajDocs/` | Obsidian vault — final, clean knowledge base |
+| `ZajProjects/` | SaaS product knowledge (Custojo, Waraq, LMS, etc.) |
+
+### Inside `_Admin/`
+
+| Subfolder | Purpose |
+|-----------|---------|
+| `_Admin/Apps/` | Utility scripts/integrations FOR this system (e.g. `notion-sync/`) |
+| `_Admin/Business/` | Legal, brand, ops (contracts, assets) |
+| `_Admin/Setup/` | Vault setup guides and config |
+
+## ZajDocs/ (Vault) Subfolder Conventions
+
+| Subfolder | Purpose | Published? |
+|-----------|---------|------------|
+| `ZajDocs/Guides/` | Topic-first how-tos and SOPs (Servers, Laravel, React, etc.) | Yes |
+| `ZajDocs/Tools/` | Tool reviews, comparisons, current stack | Yes |
+| `ZajDocs/Defaults/` | Snippets, cheatsheets, AI prompts, templates | Selectively |
+| `ZajDocs/_Archive/` | Deprecated content, kept for reference | Never |
+
+## ZajProjects/ Subfolder Conventions
+
+| Subfolder | Purpose | Published? |
+|-----------|---------|------------|
+| `ZajProjects/Custojo/` | Custojo product docs | Via GitBook/Mintlify |
+| `ZajProjects/Waraq/` | Waraq product docs | Via GitBook/Mintlify |
+| `ZajProjects/[Product]/` | Per-product knowledge base | Via GitBook/Mintlify |

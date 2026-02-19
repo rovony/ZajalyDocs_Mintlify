@@ -1,0 +1,47 @@
+---
+description: ZajalyDocs file standards — frontmatter, writing style, and tag conventions for all Markdown files in the vault
+alwaysApply: true
+---
+
+# ZajalyDocs File Standards
+
+## Context
+
+This is Zajaly LLC's central knowledge system. The Obsidian vault lives at `ZajDocs/` — all published knowledge goes there. Product-specific docs live in `ZajProjects/[Product]/`. Utility scripts live in `_Admin/Apps/`. Business files live in `_Admin/Business/`. All doc files are Markdown (.md), synced to GitHub, and selectively published via Obsidian Publish, GitBook, Mintlify, Hashnode, and Skillplate.
+
+## Frontmatter (Required)
+
+Every new `.md` file MUST include this frontmatter block:
+
+```yaml
+---
+title: [Descriptive Title]
+type: guide | sop | reference | cheatsheet | snippet | review | comparison | course | blog | template
+status: draft | review | published | outdated | archived
+owner: Malek
+tags: [relevant, topic, tags]
+project: general | custojo | waraq | lms | resiboard | repomemo | deployvault
+version: 1.0
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+publish: true | false
+---
+```
+
+## Writing Style
+
+- Clear, direct language. No fluff.
+- Use second person ("you") for guides and SOPs.
+- Include expected results after each step.
+- Add edge cases and troubleshooting sections.
+- Link related docs using `[[wikilinks]]`.
+- Code blocks must specify language (```bash, ```php, ```javascript, etc.)
+
+## Tags Convention
+
+Use lowercase, hyphenated tags:
+
+- **Topics:** `servers`, `laravel`, `react`, `python`, `databases`, `git`, `docker`, `security`, `ai-ml`
+- **Products:** `custojo`, `waraq`, `lms`, `resiboard`, `repomemo`, `deployvault`
+- **Types:** `guide`, `sop`, `reference`, `review`, `comparison`
+- **Status:** `needs-review`, `outdated`, `work-in-progress`

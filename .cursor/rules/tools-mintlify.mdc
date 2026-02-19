@@ -1,0 +1,1318 @@
+---
+description: Use when writing, editing, verifying, or fixing Mintlify content — applies to any .mdx file in a Mintlify repo (rovony/ZajalyDocs_Mintlify), docs.json, or when the user mentions Mintlify publishing
+alwaysApply: false
+---
+
+# Mintlify Workflow
+
+## 1 — Architecture
+
+### Repository Strategy
+
+Mintlify docs live in a **separate repo** from ZajalyDocs. This is intentional:
+
+| Repo | Purpose | Platform |
+|---|---|---|
+| `rovony/ZajalyDocs` | Obsidian vault + GitBook sync | GitBook |
+| `rovony/ZajalyDocs_Mintlify` | Mintlify-specific MDX + docs.json | Mintlify |
+
+Mintlify auto-deploys on every push to the default branch. No build commands needed.
+
+### Published URLs
+
+| Project | Default URL | Custom Domain |
+|---|---|---|
+| Zajaly Dev Docs | `zajalydocs-mintlify.mintlify.app` | `docs.zajaly.dev` |
+
+Additional product docs can be separate Mintlify projects (each gets free custom domain) or tabs within one project.
+
+### Required Files
+
+Every Mintlify project must contain:
+
+| File | Purpose |
+|---|---|
+| `docs.json` | Central config — navigation, theme, colors, integrations |
+| `index.mdx` | Home page |
+| `favicon.svg` | Site favicon |
+| `logo/light.png` | Logo for light mode |
+| `logo/dark.png` | Logo for dark mode |
+
+### Project Structure
+
+```
+ZajalyDocs_Mintlify/
+├── docs.json              ← Central config (navigation, theme, settings)
+├── index.mdx              ← Home page
+├── quickstart.mdx
+├── development.mdx
+├── essentials/            ← Guides (settings, navigation, markdown, code, images, snippets)
+├── api-reference/
+│   ├── introduction.mdx
+│   └── endpoint/
+│       ├── get.mdx
+│       ├── create.mdx
+│       ├── delete.mdx
+│       └── webhook.mdx
+├── ai-tools/              ← AI tool setup guides (Cursor, Claude Code, Windsurf)
+├── images/
+├── logo/
+│   ├── light.svg
+│   └── dark.svg
+├── snippets/              ← Reusable content snippets
+├── favicon.svg
+├── AGENTS.md              ← AI agent instructions for the repo
+├── .mintignore            ← Files to exclude from processing
+└── README.md              ← Repo readme (not published)
+```
+
+### Config File — Critical Note
+
+Mintlify migrated from `mint.json` to `docs.json` in early 2025. If you see `mint.json` in old tutorials, it's outdated. Always use `docs.json`. Run `mint upgrade` to auto-convert `mint.json` to `docs.json`.
+
+### CLI Reference
+
+**Prerequisite:** Node.js v20.17.0+ (LTS recommended), Git installed.
+
+```bash
+npm i -g mint          # Install CLI globally
+mint dev               # Local preview at localhost:3000
+mint dev --port 3333   # Custom port
+mint update            # Update CLI to latest version
+```
+
+Additional commands:
+
+| Command | Purpose |
+|---|---|
+| `mint new [dir]` | Scaffold a new Mintlify project (starter kit) |
+| `mint broken-links` | Find broken internal links (`--check-anchors` for anchor links) |
+| `mint a11y` | Check accessibility (color contrast, missing alt text) |
+| `mint validate` | Validate build in strict mode (for CI/CD pipelines) |
+| `mint openapi-check <file>` | Validate an OpenAPI spec file or URL |
+| `mint rename <old> <new>` | Rename a file and update all references |
+| `mint migrate-mdx` | Convert MDX endpoint pages to OpenAPI auto-generated pages |
+| `mint upgrade` | Convert `mint.json` to `docs.json` |
+
+Flags for `mint dev`: `--port`, `--disable-openapi` (skip OpenAPI processing), `--groups [name]` (preview as auth group).
+
+---
+
+## 2 — Writing Mintlify-Compatible MDX
+
+### File Format
+
+Mintlify uses MDX — Markdown with JSX components. Use `.mdx` extension (`.md` works but limits component usage).
+
+### Frontmatter (Required)
+
+Every page must begin with YAML frontmatter:
+
+```yaml
+---
+title: "Clear, specific, keyword-rich title"
+description: "Concise description for SEO and page metadata (under 160 chars)"
+---
+```
+
+Additional optional frontmatter fields:
+
+```yaml
+---
+title: "Page Title"
+description: "Brief description"
+sidebarTitle: "Short Sidebar Title"
+icon: "book"
+tag: "NEW"
+mode: "wide"
+hidden: true
+noindex: true
+keywords: ['configuration', 'setup']
+---
+```
+
+| Field | Purpose |
+|---|---|
+| `title` | Page title in navigation and browser tabs |
+| `description` | SEO meta description, displays under the title |
+| `sidebarTitle` | Shorter title for sidebar navigation |
+| `icon` | Icon next to page title (Lucide, Font Awesome, or Tabler name) |
+| `tag` | Badge next to page title in sidebar (e.g., "NEW", "BETA") |
+| `mode` | Page layout: `wide`, `custom`, `center`, `frame` (omit for default) |
+| `hidden` | Remove from sidebar; still accessible via URL |
+| `noindex` | Prevent search engine indexing |
+| `keywords` | Internal search keywords (not visible on page) |
+
+### Standard Markdown
+
+All standard markdown works: headings, paragraphs, lists, tables, code blocks, images, bold, italic, links.
+
+### Links
+
+Use relative paths without the `.mdx` extension:
+
+- **Correct:** `[Quickstart](/quickstart)`
+- **Wrong:** `[Quickstart](quickstart.mdx)`
+- **Wrong:** `[[quickstart]]` (Obsidian wikilinks not supported)
+
+### Code Blocks
+
+Always specify language and optionally a filename:
+
+````mdx
+```bash install.sh
+npm install @mintlify/cli
+```
+````
+
+The filename appears as a title above the code block.
+
+### Writing Style
+
+- Use clear, direct language for technical audiences
+- Write in second person ("you") for instructions
+- Use active voice over passive voice
+- Present tense for current states, future tense for outcomes
+- Lead with the most important information (inverted pyramid)
+- Break complex procedures into numbered steps
+- Include expected outcomes after each major step
+- Keep sentences concise while providing necessary context
+
+---
+
+## 3 — Component Reference
+
+Mintlify components are JSX tags used inside MDX files. Every opening tag must have a matching closing tag (or be self-closing).
+
+### When to Use Which Component
+
+| Component | Use When | Don't Use When |
+|---|---|---|
+| **Callouts** (Note/Warning/Tip/etc.) | Warnings, prerequisites, tips, success confirmations | Every other paragraph — overuse dilutes impact |
+| **Steps** | Sequential procedure where order matters (install → configure → deploy) | Unordered options — use tabs instead |
+| **Tabs** | Parallel alternatives (npm vs yarn, macOS vs Linux, cURL vs SDK) | Steps that must be done in sequence — use Steps |
+| **CodeGroup** | Same concept in multiple languages (JS, Python, cURL) | Single code block — just use a plain fenced block |
+| **Accordion** | Supplementary detail most readers can skip (troubleshooting, advanced config) | Critical information the reader needs |
+| **Card** | Landing/overview pages linking to sections with descriptions | Inline navigation within a guide — use regular links |
+| **Columns** | Side-by-side layout (2-4 cards, text beside image) | Long content unreadable in a narrow column |
+| **Frame** | Images that need captions or visual framing | Plain inline images — use standard markdown `![alt](path)` |
+| **ParamField / ResponseField** | API parameter and response documentation | Non-API content |
+| **Tooltip** | Defining jargon or abbreviations inline | Full explanations — use a callout or paragraph instead |
+| **Mermaid** | Flowcharts, sequence diagrams, ER diagrams | Simple lists or tables that don't need visual flow |
+| **Badge** | Inline status labels ("NEW", "BETA", "Deprecated") | Page-level tags — use frontmatter `tag` instead |
+| **Prompt** | Copyable AI prompts with Cursor integration | Non-AI content |
+
+### Page Blueprints — Which Components for Which Page Type
+
+#### How-To / Step-by-Step Guide
+
+```
+Frontmatter: title, description, icon
+├── Intro paragraph (1-2 sentences: what you'll accomplish)
+├── <Note> or <Warning>          ← prerequisites or gotchas
+├── <Steps>
+│   ├── <Step title="...">
+│   │   ├── Instructions + code block
+│   │   └── <Check> or expected result
+│   ├── <Step title="...">
+│   │   ├── <Tabs> (if platform-specific: macOS/Windows/Linux)
+│   │   └── <Warning> (if destructive)
+│   └── <Step title="...">
+├── ## Verification
+│   └── Code block or checklist
+├── <AccordionGroup>             ← troubleshooting (collapsible)
+│   ├── <Accordion title="Error X">
+│   └── <Accordion title="Error Y">
+└── ## Next steps
+    └── <Card> links to related guides
+```
+
+#### API Endpoint Reference
+
+```
+Frontmatter: title, description, api: "METHOD /path"
+├── Intro paragraph (what this endpoint does)
+├── <ParamField path="...">      ← path params
+├── <ParamField body="...">      ← request body
+├── <ParamField query="...">     ← query params
+├── <ParamField header="...">    ← headers
+├── <ResponseField>              ← response structure
+│   └── <Expandable> for nested objects
+├── <RequestExample>
+│   └── <CodeGroup> (cURL, JS, Python)
+├── <ResponseExample>
+│   └── Success + error examples
+└── <Note> rate limits / auth requirements
+```
+
+#### Landing / Overview Page
+
+```
+Frontmatter: title, description, mode: "wide"
+├── # Welcome heading
+├── Brief overview paragraph
+├── <Columns cols={2}>           ← or cols={3}
+│   ├── <Card icon="..." href="/...">  ← navigation cards
+│   ├── <Card icon="..." href="/...">
+│   └── <Card icon="..." href="/...">
+├── ## Section heading
+│   └── <Card horizontal> for secondary links
+└── <Tip> getting started suggestion
+```
+
+#### Conceptual / Explanation Page
+
+```
+Frontmatter: title, description
+├── ## What is [concept]
+│   └── Paragraph + <Tooltip> for jargon
+├── ## How it works
+│   └── Mermaid diagram (flowchart/sequence)
+├── ## Key concepts
+│   └── Table or definition list
+├── <Tabs>                       ← if comparing approaches
+│   ├── <Tab title="Approach A">
+│   └── <Tab title="Approach B">
+├── ## Examples
+│   └── Code blocks with realistic data
+└── ## Related
+    └── <Card> links
+```
+
+#### SDK / Multi-Language Guide
+
+```
+Frontmatter: title, description
+├── ## Installation
+│   └── <CodeGroup> (npm, pip, gem, cargo)
+├── ## Authentication
+│   └── <CodeGroup> (JS, Python, Ruby, Go)
+├── ## Usage
+│   ├── <CodeGroup> per operation
+│   └── <Tip> best practices
+├── <AccordionGroup>             ← advanced config per language
+└── <Warning> breaking changes / deprecations
+```
+
+#### Changelog / Release Notes
+
+```
+Frontmatter: title, description
+├── <Update label="v2.1.0" description="2026-02-19">
+│   ├── ## New features
+│   │   └── Bullet list with <Badge>NEW</Badge>
+│   ├── ## Improvements
+│   └── ## Bug fixes
+├── <Update label="v2.0.0">
+│   ├── <Warning> breaking changes
+│   └── Migration steps
+```
+
+#### Troubleshooting Page
+
+```
+Frontmatter: title, description, icon: "wrench"
+├── Intro (when to use this page)
+├── <AccordionGroup>
+│   ├── <Accordion title="Error: connection refused">
+│   │   ├── **Cause:** ...
+│   │   ├── **Fix:** ...
+│   │   └── Code block (command to run)
+│   ├── <Accordion title="404 after deployment">
+│   └── <Accordion title="SSL certificate error">
+└── <Tip> still stuck? Link to support
+```
+
+#### Comparison / Decision Page
+
+```
+Frontmatter: title, description
+├── ## Overview (what you're comparing and why)
+├── Comparison table (markdown)
+├── <Tabs>
+│   ├── <Tab title="Option A">
+│   │   └── Pros, cons, when to use
+│   └── <Tab title="Option B">
+├── ## Verdict
+│   └── <Tip> recommendation
+└── <Card> links to setup guides for each option
+```
+
+### Quick Component Cheat Sheet
+
+| I need to... | Use this |
+|---|---|
+| Show ordered instructions | `<Steps>` + `<Step>` |
+| Show platform alternatives | `<Tabs>` + `<Tab>` |
+| Show same code in multiple languages | `<CodeGroup>` |
+| Warn about danger or prerequisites | `<Warning>` or `<Note>` |
+| Confirm success | `<Check>` |
+| Hide optional/advanced details | `<Accordion>` |
+| Link to other pages visually | `<Card>` (with `icon` and `href`) |
+| Grid of cards | `<Columns cols={2}>` + `<Card>`s |
+| Show API parameters | `<ParamField>` |
+| Show API response fields | `<ResponseField>` + `<Expandable>` |
+| Show request/response examples | `<RequestExample>` + `<ResponseExample>` |
+| Define a term inline | `<Tooltip>` |
+| Add caption to an image | `<Frame caption="...">` |
+| Show a diagram | ` ```mermaid ` code block |
+| Label something as new/beta | `<Badge>` |
+| Document a version release | `<Update>` |
+| Show a copyable AI prompt | `<Prompt>` |
+| Embed a video | `<video>` (self-hosted) or `<iframe>` (YouTube) |
+
+### Callouts
+
+Six built-in styles, each with a distinct color and icon:
+
+```mdx
+<Note>Supplementary information that supports the main content.</Note>
+
+<Tip>Expert advice, shortcuts, or best practices.</Tip>
+
+<Warning>Critical information about potential issues or breaking changes.</Warning>
+
+<Info>Background information, context, or neutral announcements.</Info>
+
+<Check>Positive confirmations, successful completions.</Check>
+
+<Danger>Destructive actions or irreversible operations.</Danger>
+```
+
+When to pick each:
+- `Note` — general context, "good to know"
+- `Tip` — best practices, pro tips, shortcuts
+- `Warning` — could go wrong if ignored (data loss, lockout)
+- `Info` — neutral background context
+- `Check` — step completed successfully, positive confirmation
+- `Danger` — will break things if skipped (destructive actions)
+
+Custom callout with icon and color:
+
+```mdx
+<Callout icon="key" color="#FFC107" iconType="regular">
+Custom callout with a key icon.
+</Callout>
+```
+
+### Steps (Sequential Procedures)
+
+Use for ordered, multi-step procedures:
+
+```mdx
+<Steps>
+  <Step title="Install dependencies">
+    Run `npm install` to install required packages.
+
+    <Check>Verify installation by running `npm list`.</Check>
+  </Step>
+  <Step title="Configure environment">
+    Create a `.env` file with your API credentials.
+
+    ```bash
+    API_KEY=your_api_key_here
+    ```
+
+    <Warning>Never commit API keys to version control.</Warning>
+  </Step>
+</Steps>
+```
+
+Step properties: `title` (required), `icon`, `stepNumber`, `titleSize` (`p`, `h2`, `h3`).
+
+### Tabs (Parallel Alternatives)
+
+Use for platform-specific content or alternative approaches:
+
+```mdx
+<Tabs>
+  <Tab title="macOS">
+    ```bash
+    brew install node
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    choco install nodejs
+    ```
+  </Tab>
+  <Tab title="Linux">
+    ```bash
+    sudo apt install nodejs npm
+    ```
+  </Tab>
+</Tabs>
+```
+
+Tabs with matching titles sync across the page. Add `sync={false}` to disable.
+
+### CodeGroup (Multi-Language Code)
+
+Use when showing the same concept in multiple languages:
+
+```mdx
+<CodeGroup>
+```javascript Node.js
+const response = await fetch('/api/endpoint', {
+  headers: { Authorization: `Bearer ${apiKey}` }
+});
+```
+
+```python Python
+import requests
+response = requests.get('/api/endpoint',
+  headers={'Authorization': f'Bearer {api_key}'})
+```
+
+```bash cURL
+curl -X GET '/api/endpoint' \
+  -H 'Authorization: Bearer YOUR_API_KEY'
+```
+</CodeGroup>
+```
+
+Add `dropdown` prop for a language dropdown instead of tabs: `<CodeGroup dropdown>`.
+
+Code groups sync with Tabs that have matching titles.
+
+### Accordion (Collapsible Content)
+
+Use for progressive disclosure — troubleshooting, advanced config, optional detail:
+
+```mdx
+<Accordion title="Troubleshooting connection issues" icon="wrench">
+  - **Firewall blocking**: Ensure ports 80 and 443 are open
+  - **Proxy configuration**: Set HTTP_PROXY environment variable
+  - **DNS resolution**: Try using 8.8.8.8 as DNS server
+</Accordion>
+```
+
+Group related accordions:
+
+```mdx
+<AccordionGroup>
+  <Accordion title="Getting started">
+    Content here.
+  </Accordion>
+  <Accordion title="Advanced configuration">
+    More content.
+  </Accordion>
+</AccordionGroup>
+```
+
+Accordion properties: `title` (required), `description`, `defaultOpen`, `icon`, `iconType`.
+
+### Cards (Visual Navigation)
+
+Single card:
+
+```mdx
+<Card title="Getting Started" icon="rocket" href="/quickstart">
+  Complete walkthrough from installation to your first API call.
+</Card>
+```
+
+Card grid using Columns:
+
+```mdx
+<Columns cols={2}>
+  <Card title="Authentication" icon="key" href="/auth">
+    Learn how to authenticate API requests.
+  </Card>
+  <Card title="Rate Limiting" icon="clock" href="/rate-limits">
+    Understand rate limits and best practices.
+  </Card>
+</Columns>
+```
+
+Card properties: `title`, `icon`, `iconType`, `color`, `href`, `horizontal`, `img`, `cta`, `arrow`.
+
+### Columns (Side-by-Side Layout)
+
+```mdx
+<Columns cols={2}>
+  <div>Left column content</div>
+  <div>Right column content</div>
+</Columns>
+```
+
+Supports 1-4 columns. Auto-adjusts for smaller screens.
+
+### Frame (Images with Captions)
+
+```mdx
+<Frame>
+  <img src="/images/dashboard.png" alt="Main dashboard showing analytics" />
+</Frame>
+
+<Frame caption="The analytics dashboard provides real-time insights">
+  <img src="/images/analytics.png" alt="Analytics dashboard with charts" />
+</Frame>
+```
+
+Always include descriptive `alt` text for accessibility.
+
+### Tooltip (Inline Definitions)
+
+```mdx
+<Tooltip tip="Application Programming Interface — protocols for building software">
+API
+</Tooltip>
+```
+
+### Videos
+
+Self-hosted:
+
+```mdx
+<video
+  controls
+  className="w-full aspect-video rounded-xl"
+  src="link-to-your-video.com"
+></video>
+```
+
+YouTube embed:
+
+```mdx
+<iframe
+  className="w-full aspect-video rounded-xl"
+  src="https://www.youtube.com/embed/VIDEO_ID"
+  title="YouTube video player"
+  frameBorder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+></iframe>
+```
+
+### Update (Changelog Entries)
+
+```mdx
+<Update label="Version 2.1.0" description="Released March 15, 2024">
+## New features
+- Added bulk user import functionality
+- Improved error messages with actionable suggestions
+
+## Bug fixes
+- Fixed pagination issue with large datasets
+</Update>
+```
+
+### Mermaid Diagrams
+
+Use fenced code blocks with `mermaid` language:
+
+````mdx
+```mermaid
+graph LR
+  A[Request] --> B{Auth?}
+  B -->|Yes| C[Process]
+  B -->|No| D[401 Error]
+```
+````
+
+Supports flowcharts, sequence diagrams, class diagrams, ER diagrams, Gantt charts, and more.
+
+### Badge (Inline Labels)
+
+```mdx
+<Badge>NEW</Badge>
+<Badge color="red">Deprecated</Badge>
+```
+
+### Prompt (Copyable AI Prompts)
+
+```mdx
+<Prompt>
+  Analyze the authentication flow in our API and suggest improvements for security.
+</Prompt>
+```
+
+Renders with a copy button and optional Cursor integration.
+
+---
+
+## 4 — API Documentation Components
+
+These components are specifically for API reference pages.
+
+### ParamField (Parameters)
+
+```mdx
+<ParamField path="user_id" type="string" required>
+  Unique identifier for the user. Must be a valid UUID v4 format.
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  User's email address. Must be valid and unique within the system.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="10">
+  Maximum number of results to return. Range: 1-100.
+</ParamField>
+
+<ParamField header="Authorization" type="string" required>
+  Bearer token for API authentication. Format: `Bearer YOUR_API_KEY`
+</ParamField>
+```
+
+Location types: `path`, `body`, `query`, `header`.
+
+### ResponseField
+
+```mdx
+<ResponseField name="user_id" type="string" required>
+  Unique identifier assigned to the newly created user.
+</ResponseField>
+
+<ResponseField name="created_at" type="timestamp">
+  ISO 8601 formatted timestamp of when the user was created.
+</ResponseField>
+```
+
+### Expandable (Nested Fields)
+
+```mdx
+<ResponseField name="user" type="object">
+  Complete user object with all associated data.
+
+  <Expandable title="User properties">
+    <ResponseField name="first_name" type="string">
+      User's first name.
+    </ResponseField>
+    <ResponseField name="avatar_url" type="string | null">
+      URL to user's profile picture. Null if no avatar is set.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+```
+
+### RequestExample / ResponseExample
+
+```mdx
+<RequestExample>
+```bash cURL
+curl -X POST 'https://api.example.com/users' \
+  -H 'Content-Type: application/json' \
+  -d '{"name": "John Doe", "email": "john@example.com"}'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success (200)
+{
+  "id": "user_123",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "created_at": "2024-01-15T10:30:00Z"
+}
+```
+</ResponseExample>
+```
+
+### OpenAPI Auto-Generation
+
+Mintlify can auto-generate API pages from OpenAPI 3.0/3.1 specs:
+
+1. Place spec in repo: `api-reference/openapi.json`
+2. Or reference a URL in `docs.json`: `"openapi": "https://api.example.com/openapi.json"`
+3. Generate endpoint MDX files: `npx @mintlify/scraping@latest openapi-file ./api-reference/openapi.json -o ./api-reference`
+4. Add to navigation in `docs.json`
+
+---
+
+## 5 — Navigation (docs.json)
+
+The `navigation` property in `docs.json` controls sidebar and header navigation. Pages not listed in navigation are inaccessible (404).
+
+### Required Root Fields
+
+`docs.json` requires these four fields at minimum:
+
+| Field | Value |
+|---|---|
+| `theme` | One of: `mint`, `maple`, `palm`, `willow`, `linden`, `almond`, `aspen`, `sequoia` |
+| `name` | Project/product name |
+| `colors.primary` | Hex color code (e.g., `#0A84FF`) |
+| `navigation` | Navigation structure object |
+
+### Minimal Structure
+
+```json
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Zajaly Developer Docs",
+  "colors": { "primary": "#0A84FF" },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": ["index", "quickstart"]
+      }
+    ]
+  }
+}
+```
+
+### Navigation Elements
+
+| Element | Purpose | Level |
+|---|---|---|
+| `pages` | Array of page file paths (without `.mdx`) | Leaf — the actual content |
+| `groups` | Sidebar section headings | Organize pages into sections |
+| `tabs` | Top-level horizontal navigation | Split docs into major areas |
+| `anchors` | Persistent sidebar links | Quick access to key sections or external URLs |
+| `dropdowns` | Expandable sidebar menu | Multi-section navigation |
+| `products` | Product-specific navigation | Separate docs per product |
+| `versions` | Version selector dropdown | API versioning |
+| `languages` | Language selector dropdown | Internationalization |
+
+### Groups with Icons and Tags
+
+```json
+{
+  "group": "Writing Content",
+  "icon": "notebook-text",
+  "tag": "NEW",
+  "pages": ["writing-content/page", "writing-content/text"]
+}
+```
+
+### Nested Groups
+
+```json
+{
+  "group": "Getting Started",
+  "icon": "play",
+  "pages": [
+    "quickstart",
+    {
+      "group": "Advanced",
+      "expanded": false,
+      "pages": ["installation", "configuration"]
+    }
+  ]
+}
+```
+
+`expanded: false` collapses nested groups by default.
+
+### Group Root Page
+
+Make a group title clickable:
+
+```json
+{
+  "group": "API Pages",
+  "root": "api-overview",
+  "pages": ["api-reference/get", "api-reference/post"]
+}
+```
+
+### Tabs (Major Sections)
+
+```json
+{
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "pages": ["index", "quickstart", "guides/overview"]
+      },
+      {
+        "tab": "API Reference",
+        "pages": ["api-reference/introduction"]
+      },
+      {
+        "tab": "Blog",
+        "href": "https://external-link.com/blog"
+      }
+    ]
+  }
+}
+```
+
+### Products (Multi-Product Docs)
+
+```json
+{
+  "navigation": {
+    "products": [
+      {
+        "product": "Custojo",
+        "icon": "users",
+        "groups": [
+          { "group": "Getting Started", "pages": ["custojo/quickstart"] },
+          { "group": "Endpoints", "pages": ["custojo/api/users"] }
+        ]
+      },
+      {
+        "product": "Waraq",
+        "icon": "code",
+        "pages": ["waraq/overview"]
+      }
+    ]
+  }
+}
+```
+
+### Global Navigation Elements
+
+Elements under `navigation.global` appear across all pages/tabs/products:
+
+```json
+{
+  "navigation": {
+    "global": {
+      "anchors": [
+        { "anchor": "Blog", "icon": "newspaper", "href": "https://blog.zajaly.dev" }
+      ],
+      "tabs": [
+        { "tab": "Changelog", "href": "/changelog" }
+      ]
+    },
+    "groups": [...]
+  }
+}
+```
+
+Global `anchors`, `tabs`, `versions`, `languages`, `dropdowns`, and `products` all persist regardless of which section the user is viewing.
+
+### OpenAPI in Navigation
+
+```json
+{
+  "group": "API Reference",
+  "openapi": "/api-reference/openapi.json",
+  "pages": ["GET /users", "POST /users"]
+}
+```
+
+Omit `pages` to auto-generate pages for all endpoints.
+
+### When to Update docs.json
+
+| Action | docs.json Change |
+|---|---|
+| Add a new page | Add the page path (without `.mdx`) to `pages` in the correct group |
+| Rename a file | Update the path in the navigation |
+| Move a file | Update the path in the navigation |
+| Delete a page | Remove the entry from navigation |
+| Reorder sidebar | Reorder the items in `pages` array |
+| Add a new section | Add a new `group` object |
+| Add a new top-level area | Add a new `tab` object |
+
+### Redirects
+
+Add redirects in `docs.json` when renaming or moving pages:
+
+```json
+{
+  "redirects": [
+    { "source": "/old-page", "destination": "/new-page", "permanent": true },
+    { "source": "/guides/setup", "destination": "/quickstart" }
+  ]
+}
+```
+
+`permanent: true` (default) sends a 301 redirect. Set `false` for temporary 302 redirects.
+
+### Navbar
+
+```json
+{
+  "navbar": {
+    "links": [
+      { "type": "github", "href": "https://github.com/rovony/ZajalyDocs_Mintlify" },
+      { "label": "Community", "href": "https://discord.gg/zajaly" }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get Started",
+      "href": "https://app.zajaly.dev"
+    }
+  }
+}
+```
+
+Link `type` can be `github` (shows star count) or `discord` (shows online users).
+
+### Footer
+
+```json
+{
+  "footer": {
+    "socials": {
+      "github": "https://github.com/rovony",
+      "x": "https://x.com/zajaly"
+    },
+    "links": [
+      {
+        "header": "Resources",
+        "items": [
+          { "label": "Blog", "href": "https://blog.zajaly.dev" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Valid social keys: `x`, `github`, `discord`, `linkedin`, `youtube`, `slack`, `bluesky`, `threads`, `reddit`, and more.
+
+### Banner
+
+```json
+{
+  "banner": {
+    "content": "New v2 API is live! [Learn more](/changelog)",
+    "dismissible": true
+  }
+}
+```
+
+### Appearance (Dark/Light Mode)
+
+```json
+{
+  "appearance": {
+    "default": "system",
+    "strict": false
+  }
+}
+```
+
+Options for `default`: `system`, `light`, `dark`. Set `strict: true` to hide the toggle.
+
+### API Configuration
+
+```json
+{
+  "api": {
+    "openapi": "openapi.json",
+    "playground": { "display": "interactive" },
+    "examples": {
+      "languages": ["bash", "javascript", "python"],
+      "prefill": true
+    },
+    "mdx": {
+      "auth": { "method": "bearer" },
+      "server": "https://api.custojo.com"
+    }
+  }
+}
+```
+
+Playground `display` options: `interactive` (default), `simple`, `none`.
+
+### SEO
+
+```json
+{
+  "seo": {
+    "metatags": { "og:site_name": "Zajaly Developer Docs" },
+    "indexing": "navigable"
+  }
+}
+```
+
+`indexing`: `navigable` (only pages in navigation) or `all` (every page).
+
+### Contextual Menu (AI Integrations)
+
+```json
+{
+  "contextual": {
+    "options": ["copy", "view", "chatgpt", "claude", "cursor", "mcp"]
+  }
+}
+```
+
+Options: `copy`, `view`, `chatgpt`, `claude`, `perplexity`, `mcp`, `cursor`, `vscode`.
+
+### Integrations
+
+Configure in `docs.json` under `"integrations"`:
+
+| Integration | Key | What You Need |
+|---|---|---|
+| Google Analytics 4 | `ga4.measurementId` | `G-XXXXXXXXXX` |
+| Fathom | `fathom.siteId` | Site ID |
+| Plausible | `plausible.domain` | Domain |
+| PostHog | `posthog.apiKey` | `phc_` prefixed key |
+| Intercom | `intercom.appId` | App ID |
+| Hotjar | `hotjar.hjid` + `hjsv` | Hotjar ID + version |
+| Amplitude | `amplitude.apiKey` | API key |
+| Segment | `segment.key` | Write key |
+
+---
+
+## 6 — Writing Workflow (New Content)
+
+Follow these steps when creating new Mintlify content:
+
+1. **Identify the target.** Dev-facing docs go in the Mintlify repo (`rovony/ZajalyDocs_Mintlify`). Knowledge base content stays in ZajalyDocs.
+2. **Check for existing content.** Search the repo for related pages before creating a new one.
+3. **Create the `.mdx` file** in the correct subfolder. Include frontmatter with `title` and `description`.
+4. **Write the content** using MDX with appropriate components (Steps for procedures, Tabs for alternatives, CodeGroup for multi-language, Cards for navigation).
+5. **Follow writing standards:**
+   - Lead with user goals, not system features
+   - Include prerequisites before instructions
+   - Add verification steps after major actions
+   - Include troubleshooting for likely failure points
+   - Write for scannability — headings, lists, white space
+6. **Update `docs.json` navigation** — add the page to the correct group/tab.
+7. **Test locally** — run `mint dev` and verify at localhost:3000.
+8. **Verify** using the checklist in Section 7 below.
+
+### Code Examples Standards
+
+- Always include complete, runnable examples users can copy and execute
+- Show proper error handling and edge cases
+- Use realistic data instead of placeholder values
+- Include expected outputs for verification
+- Specify language and include filename when relevant
+- Never include real API keys or secrets
+
+### API Documentation Standards
+
+- Document all parameters including optional ones
+- Show both success and error response examples
+- Include rate limiting information
+- Provide authentication examples
+- Explain all HTTP status codes
+- Cover complete request/response cycles
+
+### Accessibility Standards
+
+- Include descriptive `alt` text for all images
+- Use specific, actionable link text (never "click here")
+- Ensure proper heading hierarchy (start with H2 on pages, H1 is the page title)
+- Use `<Frame>` with captions for important images
+- Run `mint a11y` to check contrast ratios and missing alt text
+
+### Editing Workflows
+
+Three ways to edit Mintlify content:
+
+| Method | Best For |
+|---|---|
+| **Code-based** (VS Code / Cursor) | Major restructuring, bulk edits, new pages. `mint dev` for local preview. |
+| **Web editor** (dashboard.mintlify.com) | Quick typo fixes, content tweaks. Visual + Markdown modes, live preview, drag-and-drop navigation. |
+| **Mintlify Agent** (Slack `@mintlify`) | AI-assisted doc updates from PRs, generate release notes, address review feedback. |
+
+All three commit to the same Git repo. Use code-based for heavy work, web editor for light edits, agent for automation.
+
+### Mintlify Agent Workflows (Pro)
+
+The Mintlify agent (Slack or API) can:
+- Update docs when merging feature PRs: `@mintlify Update docs for this PR: [link]`
+- Generate release notes: `@mintlify Generate release notes for this PR: [link]`
+- Generate code examples: `@mintlify Generate a code example for the auth flow`
+- Review content: `@mintlify Review the API rate limiting section`
+- API automation: `POST /api/agent/jobs` for CI/CD integration
+
+---
+
+## 7 — Verification Checklist
+
+Run through this after writing or editing any Mintlify content:
+
+- [ ] **Frontmatter complete** — `title` and `description` present on every page
+- [ ] **Navigation updated** — page listed in `docs.json` → `navigation` (unlisted pages return 404)
+- [ ] **No broken links** — every linked page exists; paths use `/path` format without `.mdx`
+- [ ] **Components matched** — every opening `<Component>` has a closing `</Component>`
+- [ ] **Code blocks have language** — every fenced code block specifies a language
+- [ ] **Images accessible** — all `<img>` and `<Frame>` elements have `alt` text
+- [ ] **No wikilinks** — no `[[...]]` syntax (use `[text](/path)` format)
+- [ ] **docs.json valid** — valid JSON, no trailing commas
+- [ ] **Local preview works** — `mint dev` renders the page correctly at localhost:3000
+- [ ] **API params documented** — all parameters (including optional) described with types
+
+### Automated Verification Steps
+
+When asked to verify Mintlify content:
+
+1. **Link check:** Search for `[[` in all `.mdx` files — flag any wikilinks. Run `mint broken-links` for comprehensive link validation.
+2. **Navigation sync:** List all `.mdx` files, compare against `docs.json` navigation — flag unlisted pages.
+3. **Component matching:** Search for `<` tags and verify each opening tag has a closing tag or is self-closing.
+4. **Frontmatter check:** Verify every `.mdx` file starts with `---` frontmatter containing `title` and `description`.
+5. **docs.json validation:** Parse `docs.json` and check for JSON syntax errors. Run `mint validate` for strict build validation.
+6. **Accessibility check:** Run `mint a11y` to detect contrast issues and missing alt text.
+
+---
+
+## 8 — Editing and Fixing
+
+### Common Issues
+
+| Problem | Cause | Fix |
+|---|---|---|
+| Page returns 404 | Not listed in `docs.json` navigation | Add the page path to the correct group in `docs.json` |
+| Component not rendering | Missing closing tag, wrong casing, or `.md` file | Check tag pairs; ensure file is `.mdx`; component names are PascalCase |
+| `mint dev` fails | Invalid `docs.json` or missing dependencies | Run `mint update`; validate JSON (no trailing commas); check Node.js ≥ v20.17.0 |
+| Broken link | Wrong path or file renamed | Fix path; use `/path` without `.mdx` extension |
+| Wikilinks as raw text | Mintlify doesn't support `[[wikilinks]]` | Convert to `[text](/path)` |
+| Code group tabs not syncing | Tab titles don't match across groups | Ensure matching titles; or add `sync={false}` to disable |
+| Deployment stuck | GitHub webhook or build error | Check Mintlify Dashboard → Overview; check GitHub Actions for errors |
+| Custom domain SSL error | Cloudflare misconfigured | SSL → Full (strict); disable "Always Use HTTPS" in Edge Certificates |
+| Image not displaying | Wrong path | Use paths relative to repo root (e.g., `/images/screenshot.png`) |
+| API playground not showing | Invalid OpenAPI spec or missing config | Validate spec is OpenAPI 3.0+; check `api.baseUrl` in `docs.json` |
+| Page shows but no sidebar | `hidden: true` in frontmatter | Remove `hidden: true` from frontmatter |
+| Frontmatter not applying | YAML syntax error in frontmatter | Check for unescaped colons — wrap values in quotes |
+
+### Fixing Workflow
+
+When asked to fix Mintlify content:
+
+1. **Read the file** and `docs.json`.
+2. **Run verification checklist** (Section 7) against the file.
+3. **Fix all issues found** — update the MDX file, `docs.json`, or both.
+4. **Check neighboring files** if the issue might affect other pages (e.g., a renamed folder).
+5. **Test locally** — confirm with `mint dev` if possible.
+
+---
+
+## 9 — New Project Setup
+
+When creating a new Mintlify project for a product:
+
+### Step 1 — Create Repository
+
+```bash
+mkdir product-docs && cd product-docs
+git init
+```
+
+### Step 2 — Create docs.json
+
+```json
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "[Product Name] Docs",
+  "logo": {
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#0A84FF",
+    "light": "#4DA6FF",
+    "dark": "#0066CC"
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": ["index", "quickstart"]
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/rovony"
+    }
+  }
+}
+```
+
+### Step 3 — Create index.mdx
+
+```mdx
+---
+title: "[Product Name] Documentation"
+description: "[One-line description of the product and who this documentation is for.]"
+---
+
+# Welcome to [Product Name]
+
+[Brief overview paragraph.]
+
+<Columns cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get up and running in under 5 minutes.
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Explore endpoints and authentication.
+  </Card>
+</Columns>
+```
+
+### Step 4 — Create quickstart.mdx
+
+```mdx
+---
+title: "Quickstart"
+description: "Get started with [Product Name] in under 5 minutes."
+---
+
+<Steps>
+  <Step title="Create an account">
+    Sign up at [product website].
+  </Step>
+  <Step title="Get your API key">
+    Navigate to **Settings → API Keys** and generate a key.
+
+    <Warning>Keep your API key secret. Never commit it to version control.</Warning>
+  </Step>
+  <Step title="Make your first request">
+    <CodeGroup>
+    ```bash cURL
+    curl -X GET 'https://api.example.com/health' \
+      -H 'Authorization: Bearer YOUR_API_KEY'
+    ```
+
+    ```javascript Node.js
+    const response = await fetch('https://api.example.com/health', {
+      headers: { Authorization: 'Bearer YOUR_API_KEY' }
+    });
+    ```
+    </CodeGroup>
+
+    <Check>You should receive a `200 OK` response.</Check>
+  </Step>
+</Steps>
+```
+
+### Step 5 — Connect in Mintlify Dashboard
+
+1. Go to **dashboard.mintlify.com**
+2. Create new project → connect GitHub repo
+3. Install **Mintlify GitHub App** (enables auto-deploy on push)
+4. Set custom domain under **Settings → Domain Setup**
+5. Configure Cloudflare DNS: CNAME `docs` → `cname.mintlify-dns.com` (DNS only, gray cloud)
+6. Cloudflare SSL → Full (strict); disable "Always Use HTTPS"
+
+### Step 6 — Verify
+
+- [ ] `mint dev` works locally at localhost:3000
+- [ ] Pushed to GitHub → auto-deployed
+- [ ] Site accessible at default `.mintlify.app` URL
+- [ ] Custom domain resolves with valid SSL
+- [ ] Navigation matches `docs.json`
+- [ ] All pages render with correct components
+
+---
+
+## 10 — Mintlify vs GitBook — When to Use Which
+
+| | **GitBook** | **Mintlify** |
+|---|---|---|
+| Best for | Knowledge base, guides, SOPs | API docs, developer-facing docs |
+| File format | Markdown with `{% %}` blocks | MDX (Markdown + JSX components) |
+| Config | `.gitbook.yaml` + `SUMMARY.md` | `docs.json` (single file) |
+| API playground | No | Yes (built-in, interactive) |
+| Custom domain | $65/mo | Free |
+| Content source | ZajalyDocs monorepo (`rovony/ZajalyDocs`) | Separate repo (`rovony/ZajalyDocs_Mintlify`) |
+| Deployment | Bidirectional Git Sync | Auto-deploy on push |
+| Local preview | No | `mint dev` at localhost:3000 |
+| CLI | None | `mint dev`, `mint update`, `mint validate`, `mint broken-links`, `mint a11y` |
+| Components | Liquid-style `{% %}` tags | JSX components `<Component>` |
+| Web editor | Yes (bidirectional sync) | Yes (visual + markdown modes, drag-and-drop nav) |
+| AI agent | No | Slack `@mintlify` + API for automated doc updates (Pro) |
+| Themes | No (single design) | 8 themes: mint, maple, palm, willow, linden, almond, aspen, sequoia |
+| Redirects | `.gitbook.yaml` redirects section | `docs.json` redirects array (source/destination) |
+
+Use GitBook for `ZajDocs/` knowledge base and `ZajProjects/` product overviews. Use Mintlify for `docs.zajaly.dev` developer-facing API documentation.

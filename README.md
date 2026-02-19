@@ -1,55 +1,53 @@
-# Mintlify Starter Kit
+# Zajaly Developer Docs
 
-Use the starter kit to get your docs deployed and ready to customize.
+Public developer documentation for Zajaly APIs, SDKs, and tools. Built with [Mintlify](https://mintlify.com).
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+**Live site:** [docs.zajaly.dev](https://docs.zajaly.dev)
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+## Local development
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
+Prerequisites: Node.js v20.17.0+ (LTS recommended), Git.
 
 ```bash
-npx skills add https://mintlify.com/docs
-```
-
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
-
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
+git clone git@github.com:rovony/ZajalyDocs_Mintlify.git
+cd ZajalyDocs_Mintlify
 npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
+Preview at [http://localhost:3000](http://localhost:3000). Changes auto-reload on save.
 
-## Publishing changes
+## Deployment
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+Push to `main` — Mintlify auto-deploys via the GitHub App. No build commands needed.
 
-## Need help?
+## Useful commands
 
-### Troubleshooting
+| Command | Purpose |
+|---|---|
+| `mint dev` | Local preview at localhost:3000 |
+| `mint dev --port 3333` | Custom port |
+| `mint update` | Update CLI to latest version |
+| `mint broken-links` | Find broken internal links |
+| `mint a11y` | Check accessibility |
+| `mint validate` | Validate build (strict mode) |
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+## Project structure
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+```
+├── docs.json              ← Site config (navigation, theme, settings)
+├── index.mdx              ← Home page
+├── quickstart.mdx         ← Getting started guide
+├── development.mdx        ← Local development instructions
+├── essentials/            ← Writing and customization guides
+├── api-reference/         ← API documentation + OpenAPI spec
+├── ai-tools/              ← AI coding tool setup guides
+├── snippets/              ← Reusable content snippets
+├── images/                ← Static assets
+├── logo/                  ← Brand logos (light + dark)
+└── favicon.svg
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
