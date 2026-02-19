@@ -26,7 +26,24 @@
     "tabs": [
       {
         "tab": "Defaults",
-        "icon": "star-shooting"
+        "icon": "star-shooting",
+        "dropdowns": [
+          {
+            "dropdown": "test-dropdown",
+            "pages": [
+              "test",
+              {
+                "group": "group2",
+                "pages": [
+                  "test2"
+                ]
+              }
+            ]
+          },
+          {
+            "dropdown": "dropdown2"
+          }
+        ]
       },
       {
         "tab": "Guides",
@@ -87,6 +104,17 @@
       },
       {
         "tab": "Tools"
+      },
+      {
+        "tab": "Components",
+        "dropdowns": [
+          {
+            "dropdown": "DropDown"
+          },
+          {
+            "dropdown": "Dropdown2"
+          }
+        ]
       }
     ]
   },
@@ -109,15 +137,15 @@
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
