@@ -5,4 +5,77 @@ description: "Get started with Waraq developer tools in under 5 minutes."
 icon: "rocket"
 ---
 
-{/* TODO: Add content — installation, API key, first generation */}
+Get Waraq running in your project, configure your API key, and generate your first output.
+
+<Info>
+**Prerequisites:** Node.js 18+ or Python 3.9+, and a Waraq API key from [app.waraq.dev](https://app.waraq.dev).
+</Info>
+
+## Steps
+
+<Steps>
+  <Step title="Install the SDK">
+    Install the Waraq SDK for your language:
+
+    <CodeGroup>
+```bash npm
+npm install @zajaly/waraq
+```
+
+```bash pip
+pip install waraq
+```
+    </CodeGroup>
+
+    <Check>Package appears in `package.json` or `requirements.txt`.</Check>
+  </Step>
+
+  <Step title="Configure your API key">
+    Set the `WARAQ_API_KEY` environment variable, or pass it when initializing the client:
+
+    <CodeGroup>
+```javascript Node.js
+const { Waraq } = require('@zajaly/waraq');
+const waraq = new Waraq({ apiKey: process.env.WARAQ_API_KEY });
+```
+
+```python Python
+from waraq import Waraq
+client = Waraq(api_key=os.environ.get('WARAQ_API_KEY'))
+```
+    </CodeGroup>
+
+    <Check>Client initializes without throwing an error.</Check>
+  </Step>
+
+  <Step title="Generate your first output">
+    Call the generate endpoint with a prompt:
+
+    <CodeGroup>
+```javascript Node.js
+const result = await waraq.generate({
+  prompt: 'Create a function that validates an email address',
+  language: 'javascript'
+});
+console.log(result.output);
+```
+
+```python Python
+result = client.generate(
+  prompt='Create a function that validates an email address',
+  language='python'
+)
+print(result.output)
+```
+    </CodeGroup>
+
+    <Check>You receive generated code in the specified language.</Check>
+  </Step>
+</Steps>
+
+<Warning>Store your API key in environment variables or a secrets manager. Never commit it to version control.</Warning>
+
+## Next steps
+
+- [SDK reference](/products/waraq/sdk) — Full SDK usage, streaming, and advanced options.
+- [API docs](/products/waraq/overview) — Direct REST API access.

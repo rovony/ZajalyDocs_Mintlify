@@ -71,12 +71,39 @@
             ]
           },
           {
+            "group": "React",
+            "icon": "react",
+            "pages": [
+              "guides/react/setup",
+              "guides/react/components",
+              "guides/react/state-management"
+            ]
+          },
+          {
+            "group": "Python",
+            "icon": "python",
+            "pages": [
+              "guides/python/setup",
+              "guides/python/scripts",
+              "guides/python/automation"
+            ]
+          },
+          {
             "group": "Databases",
             "icon": "database",
             "pages": [
               "guides/databases/mysql",
               "guides/databases/postgresql",
               "guides/databases/redis"
+            ]
+          },
+          {
+            "group": "APIs",
+            "icon": "plug",
+            "pages": [
+              "guides/apis/rest-design",
+              "guides/apis/webhooks",
+              "guides/apis/rate-limiting"
             ]
           },
           {
@@ -95,6 +122,15 @@
               "guides/security/ssl-dns",
               "guides/security/authentication",
               "guides/security/app-security"
+            ]
+          },
+          {
+            "group": "AI and ML",
+            "icon": "brain",
+            "pages": [
+              "guides/ai-ml/models",
+              "guides/ai-ml/agents",
+              "guides/ai-ml/prompts"
             ]
           }
         ]
@@ -209,6 +245,29 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Defaults",
+        "icon": "bookmark",
+        "groups": [
+          {
+            "group": "Cheatsheets",
+            "icon": "rectangle-list",
+            "pages": [
+              "defaults/cheatsheets/git",
+              "defaults/cheatsheets/docker",
+              "defaults/cheatsheets/laravel",
+              "defaults/cheatsheets/linux"
+            ]
+          },
+          {
+            "group": "AI prompts",
+            "icon": "message-bot",
+            "pages": [
+              "defaults/ai-prompts"
+            ]
+          }
+        ]
       }
     ],
     "global": {
@@ -222,6 +281,13 @@
           "anchor": "Blog",
           "icon": "newspaper",
           "href": "https://blog.zajaly.dev"
+        }
+      ],
+      "tabs": [
+        {
+          "tab": "Changelog",
+          "icon": "clock-rotate-left",
+          "href": "/changelog"
         }
       ]
     }
@@ -259,7 +325,7 @@
         "header": "Resources",
         "items": [
           { "label": "Blog", "href": "https://blog.zajaly.dev" },
-          { "label": "Changelog", "href": "https://changelog.zajaly.dev" }
+          { "label": "Changelog", "href": "/changelog" }
         ]
       },
       {

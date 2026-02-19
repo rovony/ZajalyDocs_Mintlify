@@ -5,4 +5,117 @@ description: "Integrate Waraq into your applications with the JavaScript and Pyt
 icon: "puzzle-piece"
 ---
 
-{/* TODO: Add content — installation, authentication, usage examples, error handling */}
+Use the Waraq SDK to add code generation and AST operations to your applications. Both JavaScript and Python clients support the same core features.
+
+<Tabs>
+  <Tab title="JavaScript">
+    <Steps>
+      <Step title="Install">
+        ```bash
+        npm install @zajaly/waraq
+        ```
+      </Step>
+      <Step title="Configure">
+        ```javascript
+        const { Waraq } = require('@zajaly/waraq');
+        const waraq = new Waraq({
+          apiKey: process.env.WARAQ_API_KEY,
+          baseUrl: 'https://api.waraq.dev' // optional
+        });
+        ```
+      </Step>
+      <Step title="Generate">
+        <CodeGroup>
+```javascript Basic usage
+const result = await waraq.generate({
+  prompt: 'Create a React hook for fetching data',
+  language: 'javascript'
+});
+console.log(result.output);
+```
+
+```javascript With options
+const result = await waraq.generate({
+  prompt: 'Add error handling to this function',
+  language: 'javascript',
+  model: 'waraq-v1',
+  temperature: 0.3
+});
+```
+        </CodeGroup>
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Python">
+    <Steps>
+      <Step title="Install">
+        ```bash
+        pip install waraq
+        ```
+      </Step>
+      <Step title="Configure">
+        ```python
+        from waraq import Waraq
+        client = Waraq(api_key=os.environ.get('WARAQ_API_KEY'))
+        ```
+      </Step>
+      <Step title="Generate">
+        <CodeGroup>
+```python Basic usage
+result = client.generate(
+  prompt='Create a FastAPI endpoint for user login',
+  language='python'
+)
+print(result.output)
+```
+
+```python With options
+result = client.generate(
+  prompt='Add validation to this schema',
+  language='python',
+  model='waraq-v1',
+  temperature=0.3
+)
+```
+        </CodeGroup>
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+<Tip>
+**Error handling:** Wrap SDK calls in try/except (Python) or try/catch (JavaScript). The SDK throws descriptive errors for invalid keys, rate limits, and model errors.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Streaming" icon="stream">
+    For long outputs, use streaming to receive chunks as they are generated:
+
+    <CodeGroup>
+```javascript JavaScript
+for await (const chunk of waraq.generateStream({ prompt, language })) {
+  process.stdout.write(chunk);
+}
+```
+
+```python Python
+for chunk in client.generate_stream(prompt=prompt, language='python'):
+  print(chunk, end='')
+```
+    </CodeGroup>
+  </Accordion>
+
+  <Accordion title="Custom models" icon="microchip">
+    Specify a model when calling generate: `model: 'waraq-v1'` (default) or `model: 'waraq-fast'` for lower latency.
+  </Accordion>
+
+  <Accordion title="Batch processing" icon="layer-group">
+    Use `waraq.batchGenerate([...])` (JavaScript) or `client.batch_generate([...])` (Python) to process multiple prompts in one request. Subject to rate limits.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+- [Quickstart](/products/waraq/quickstart) — End-to-end setup.
+- [Waraq overview](/products/waraq/overview) — Architecture and use cases.

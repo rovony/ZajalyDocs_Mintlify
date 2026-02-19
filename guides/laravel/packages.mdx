@@ -4,4 +4,49 @@ description: "Essential Laravel packages and how to integrate them into your pro
 icon: "puzzle-piece"
 ---
 
-{/* TODO: Add content — recommended packages, installation patterns, config tips */}
+Laravel's ecosystem includes packages for authentication, APIs, testing, and developer tools. This guide lists essential packages and how to add them to your projects.
+
+<Tabs>
+  <Tab title="Authentication">
+    | Package | Description | Install |
+    |--------|-------------|---------|
+    | Laravel Breeze | Lightweight auth scaffolding (Blade, Livewire, React, Vue) | `composer require laravel/breeze --dev` |
+    | Laravel Fortify | Headless auth backend (registration, 2FA) | `composer require laravel/fortify` |
+    | Laravel Sanctum | API token auth for SPAs and mobile apps | `composer require laravel/sanctum` |
+
+    <Accordion title="Sanctum SPA configuration">
+      Add `EnsureFrontendRequestsAreStateful` to `api` middleware in `bootstrap/app.php`, configure `SANCTUM_STATEFUL_DOMAINS`, and use `Sanctum::authenticate()` in your frontend.
+    </Accordion>
+  </Tab>
+
+  <Tab title="API">
+    | Package | Description | Install |
+    |--------|-------------|---------|
+    | Laravel API Resources | Transform models for JSON responses | Built-in |
+    | Spatie Laravel Query Builder | Filter, sort, include relations | `composer require spatie/laravel-query-builder` |
+    | Laravel Passport | OAuth2 server for third-party clients | `composer require laravel/passport` |
+
+  </Tab>
+
+  <Tab title="Testing">
+    | Package | Description | Install |
+    |--------|-------------|---------|
+    | PHPUnit | Unit and feature testing | Built-in |
+    | Pest | Expressive testing syntax | `composer require pestphp/pest --dev` |
+    | Laravel Dusk | Browser automation tests | `composer require laravel/dusk --dev` |
+
+  </Tab>
+
+  <Tab title="DevTools">
+    | Package | Description | Install |
+    |--------|-------------|---------|
+    | Laravel Telescope | Debug and monitor requests, jobs, logs | `composer require laravel/telescope --dev` |
+    | Spatie Laravel Debugbar | In-browser debug bar | `composer require barryvdh/laravel-debugbar --dev` |
+    | Laravel Pint | Opinionated code style fixer | `composer require laravel/pint` |
+
+  </Tab>
+</Tabs>
+
+<Tip>
+Choose packages based on your use case: use Fortify for headless auth, Sanctum for API tokens, Telescope only in development, and Pint in CI to enforce style.
+</Tip>

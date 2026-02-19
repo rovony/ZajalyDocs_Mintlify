@@ -1,0 +1,94 @@
+---
+title: "Components"
+description: "Build reusable React components with props, composition, and best practices."
+icon: "cubes"
+---
+
+React components let you split the UI into reusable pieces. Start with functional components, add props and children, then use composition over inheritance.
+
+<Tabs>
+  <Tab title="Functional">
+    <CodeGroup>
+    ```tsx Functional.tsx
+    export function Greeting() {
+      return <h1>Hello, World</h1>;
+    }
+    ```
+    </CodeGroup>
+  </Tab>
+  <Tab title="With Props">
+    <CodeGroup>
+    ```tsx WithProps.tsx
+    interface GreetingProps {
+      name: string;
+      count?: number;
+    }
+    export function Greeting({ name, count = 1 }: GreetingProps) {
+      return <h1>Hello, {name} ({count}x)</h1>;
+    }
+    ```
+    </CodeGroup>
+  </Tab>
+  <Tab title="With Children">
+    <CodeGroup>
+    ```tsx WithChildren.tsx
+    interface CardProps {
+      title: string;
+      children: React.ReactNode;
+    }
+    export function Card({ title, children }: CardProps) {
+      return (
+        <div className="card">
+          <h2>{title}</h2>
+          {children}
+        </div>
+      );
+    }
+    ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+<Tip>
+Prefer composition: pass components as children or render props instead of extending base classes. Use `<Card><Button /></Card>` rather than `class ButtonCard extends Card`.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Render props pattern">
+    ```tsx
+    function DataLoader({ render }: { render: (data: User[]) => JSX.Element }) {
+      const [data, setData] = useState<User[]>([]);
+      useEffect(() => { fetchUsers().then(setData); }, []);
+      return render(data);
+    }
+    ```
+  </Accordion>
+  <Accordion title="Higher-order components (HOC)">
+    ```tsx
+    function withAuth<P>(Wrapped: React.ComponentType<P>) {
+      return (props: P) => {
+        const { user } = useAuth();
+        return user ? <Wrapped {...props} /> : <Navigate to="/login" />;
+      };
+    }
+    ```
+  </Accordion>
+  <Accordion title="forwardRef for ref forwarding">
+    ```tsx
+    const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => (
+      <input ref={ref} {...props} />
+    ));
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="React setup" icon="react" href="/guides/react/setup">
+    Set up a Vite + TypeScript project.
+  </Card>
+  <Card title="State management" icon="diagram-project" href="/guides/react/state-management">
+    Manage state with hooks and context.
+  </Card>
+</Columns>

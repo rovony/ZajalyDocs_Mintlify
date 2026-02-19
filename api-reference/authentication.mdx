@@ -4,4 +4,63 @@ description: "Authenticate your API requests with bearer tokens and API keys."
 icon: "key"
 ---
 
-{/* TODO: Add content — API key generation, bearer tokens, request signing, scopes */}
+All Zajaly API requests require authentication. Include credentials in the `Authorization` header.
+
+<ParamField header="Authorization" type="string" required>
+  Bearer token or API key. Format: `Bearer YOUR_TOKEN`
+</ParamField>
+
+<Tabs>
+  <Tab title="Bearer Token">
+    **Obtain:** Settings → API Keys at app.zajaly.dev. **Use:** `Authorization: Bearer TOKEN`
+
+    <CodeGroup>
+```bash cURL
+curl -H 'Authorization: Bearer YOUR_TOKEN' https://api.zajaly.dev/v1/me
+```
+```javascript Node.js
+fetch('https://api.zajaly.dev/v1/me', {
+  headers: { Authorization: `Bearer ${token}` }
+});
+```
+```python Python
+requests.get('https://api.zajaly.dev/v1/me',
+  headers={'Authorization': f'Bearer {token}'})
+```
+    </CodeGroup>
+  </Tab>
+  <Tab title="API Key">
+    **How to obtain:** Dashboard → **Settings** → **API Keys** → **Create**. Copy the key immediately; it is shown only once.
+
+    **How to use:** Pass the API key as a Bearer token. Keys start with `sk_`.
+
+    <CodeGroup>
+```bash cURL
+curl -X GET 'https://api.zajaly.dev/v1/projects' \
+  -H 'Authorization: Bearer sk_live_xxxxxxxxxxxx'
+```
+```javascript Node.js
+const response = await fetch('https://api.zajaly.dev/v1/projects', {
+  headers: { Authorization: `Bearer ${process.env.ZAJALY_API_KEY}` }
+});
+```
+```python Python
+import os
+import requests
+response = requests.get(
+  'https://api.zajaly.dev/v1/projects',
+  headers={'Authorization': f'Bearer {os.environ["ZAJALY_API_KEY"]}'}
+)
+```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+<Danger>Never expose API keys in client-side code or public repos. Use env vars and server-side requests.</Danger>
+
+<Tip>Rotate tokens periodically. Use short-lived tokens when supported.</Tip>
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized">Check header format: `Authorization: Bearer TOKEN`. Verify key not revoked.</Accordion>
+  <Accordion title="Expired tokens">Bearer tokens expire. Refresh or obtain new token. API keys do not expire.</Accordion>
+</AccordionGroup>

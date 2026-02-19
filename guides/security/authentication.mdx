@@ -4,4 +4,80 @@ description: "Implement secure authentication with JWT, OAuth, API keys, and ses
 icon: "fingerprint"
 ---
 
-{/* TODO: Add content — JWT vs sessions, OAuth 2.0 flows, API key management, Laravel Sanctum */}
+Choose an authentication method based on your use case: APIs, web apps, third-party login, or machine-to-machine access.
+
+<Tabs>
+  <Tab title="JWT">
+    Stateless tokens signed with a secret or key pair. Client stores the token and sends it in the `Authorization` header.
+
+    ```mermaid
+    sequenceDiagram
+      Client->>Server: POST /login (creds)
+      Server->>Client: { access_token, expires_in }
+      Client->>Server: GET /api/resource (Authorization: Bearer TOKEN)
+      Server->>Client: { data }
+    ```
+  </Tab>
+  <Tab title="OAuth 2.0">
+    Delegated authorization. User authorizes a client to access resources; client receives an access token from the authorization server.
+
+    ```mermaid
+    sequenceDiagram
+      User->>Client: Click "Login with Google"
+      Client->>Auth Server: Redirect to authorize
+      User->>Auth Server: Approve
+      Auth Server->>Client: Redirect with code
+      Client->>Auth Server: Exchange code for token
+      Auth Server->>Client: access_token
+    ```
+  </Tab>
+  <Tab title="API Keys">
+    Simple static credentials for server-to-server or dev access. Sent in header or query param.
+
+    ```mermaid
+    sequenceDiagram
+      Client->>Server: GET /api/data (X-API-Key: KEY)
+      Server->>Server: Validate key
+      Server->>Client: { data }
+    ```
+  </Tab>
+  <Tab title="Sessions">
+    Server stores session data; client sends a session cookie or token. Good for traditional web apps.
+
+    ```mermaid
+    sequenceDiagram
+      Client->>Server: POST /login
+      Server->>Server: Create session
+      Server->>Client: Set-Cookie: session_id
+      Client->>Server: Request + Cookie
+      Server->>Client: Response
+    ```
+  </Tab>
+</Tabs>
+
+<CodeGroup>
+```javascript Node.js (JWT)
+const jwt = require('jsonwebtoken');
+const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+// Verify: jwt.verify(token, process.env.JWT_SECRET);
+```
+
+```php Laravel Sanctum
+use Laravel\Sanctum\HasApiTokens;
+$token = $user->createToken('api')->plainTextToken;
+// Validate via 'auth:sanctum' middleware
+```
+</CodeGroup>
+
+<Warning>Never store tokens in `localStorage` if the app is vulnerable to XSS. Prefer `httpOnly` cookies for session-based auth in browsers.</Warning>
+
+<Tip>Use **JWT** for stateless APIs; **sessions** for server-rendered apps; **OAuth 2.0** for third-party login; **API keys** for internal or dev-only access.</Tip>
+
+## Comparison
+
+| Method | Stateless | Best for | Complexity |
+|--------|-----------|----------|------------|
+| **JWT** | Yes | APIs, SPAs | Medium |
+| **OAuth 2.0** | Yes | Social/login with Google, GitHub | High |
+| **API Keys** | Yes | Server-to-server, dev tools | Low |
+| **Sessions** | No | Web apps, server-side rendering | Low |

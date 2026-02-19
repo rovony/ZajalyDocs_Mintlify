@@ -4,4 +4,71 @@ description: "Configure SSL certificates, DNS records, and HTTPS for your domain
 icon: "lock"
 ---
 
-{/* TODO: Add content — Let's Encrypt, Cloudflare, DNS records, certificate renewal */}
+HTTPS requires a valid SSL certificate and correct DNS. Cloudflare and Let's Encrypt are common options for free certificates.
+
+<Info>
+**Prerequisites:** A registered domain and access to your DNS provider. For Cloudflare: an account. For Let's Encrypt: shell access to the server.
+</Info>
+
+## Certificate methods
+
+<Tabs>
+  <Tab title="Cloudflare">
+    Add your domain to Cloudflare. SSL is enabled by default. Set SSL mode to **Full** or **Full (strict)** for origin certificate validation.
+  </Tab>
+  <Tab title="Let's Encrypt">
+    Use Certbot to obtain and renew certificates. Automatically renew with a cron job.
+  </Tab>
+  <Tab title="Manual">
+    Upload a certificate (e.g. from a CA) and private key to your host. Requires manual renewal.
+  </Tab>
+</Tabs>
+
+## Setup steps
+
+<Steps>
+  <Step title="Add domain to Cloudflare">
+    Add your domain in the Cloudflare dashboard. Update your registrar's nameservers to the ones Cloudflare provides.
+  </Step>
+  <Step title="Configure DNS records">
+    Add an **A** record pointing your apex or subdomain to your server IP. Add **CNAME** for subdomains like `www`.
+  </Step>
+  <Step title="Enable SSL">
+    In Cloudflare: **SSL/TLS → Overview → Full (strict)**. For Let's Encrypt, run Certbot as below.
+  </Step>
+</Steps>
+
+<CodeGroup>
+```bash certbot standalone
+certbot certonly --standalone -d example.com -d www.example.com
+```
+
+```bash certbot nginx
+certbot --nginx -d example.com
+```
+
+```bash renew (cron)
+0 0 1 * * certbot renew --quiet
+```
+</CodeGroup>
+
+## DNS record types
+
+| Type | Purpose | Example |
+|------|---------|---------|
+| **A** | IPv4 address | `@` → `203.0.113.1` |
+| **AAAA** | IPv6 address | `@` → `2001:db8::1` |
+| **CNAME** | Alias to another name | `www` → `example.com` |
+| **TXT** | Verification, SPF, DKIM | `_acme-challenge` → token |
+| **MX** | Mail servers | `@` → `mail.example.com` |
+
+<Warning>DNS changes can take up to 48 hours to propagate (often minutes with Cloudflare). Plan migrations and certificate issuance accordingly.</Warning>
+
+<AccordionGroup>
+  <Accordion title="Certificate not trusted or chain incomplete" icon="certificate">
+    Ensure the full chain (intermediate + root) is presented. For Nginx: `ssl_certificate` + `ssl_certificate_key`; include the chain in the cert file.
+  </Accordion>
+  <Accordion title="DNS not resolving" icon="globe">
+    Verify nameservers at your registrar. Use `dig example.com` or `nslookup example.com` to confirm propagation.
+  </Accordion>
+</AccordionGroup>

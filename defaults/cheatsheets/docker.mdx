@@ -1,0 +1,93 @@
+---
+title: "Docker cheatsheet"
+description: "Quick reference for Docker commands, Compose, and container management."
+icon: "cube"
+---
+
+Quick reference for Docker commands. Use the tabs to find commands by category.
+
+<Tabs>
+  <Tab title="Images">
+    | Command | Description |
+    |---------|-------------|
+    | `docker build -t name .` | Build image |
+    | `docker images` | List images |
+    | `docker pull nginx` | Pull image |
+    | `docker rmi id` | Remove image |
+
+    ```bash
+    docker build -t myapp:latest .
+    docker pull nginx:alpine
+    ```
+  </Tab>
+  <Tab title="Containers">
+    | Command | Description |
+    |---------|-------------|
+    | `docker run -d nginx` | Run detached |
+    | `docker ps` | List running |
+    | `docker exec -it id sh` | Shell into container |
+    | `docker logs id` | View logs |
+
+    ```bash
+    docker run -d -p 8080:80 --name web nginx
+    docker exec -it web sh
+    ```
+  </Tab>
+  <Tab title="Compose">
+    | Command | Description |
+    |---------|-------------|
+    | `docker compose up -d` | Start services |
+    | `docker compose down` | Stop and remove |
+    | `docker compose logs -f` | Follow logs |
+    | `docker compose ps` | List services |
+
+    ```bash
+    docker compose up -d
+    docker compose logs -f app
+    ```
+  </Tab>
+  <Tab title="Volumes">
+    | Command | Description |
+    |---------|-------------|
+    | `docker volume ls` | List volumes |
+    | `docker volume create data` | Create volume |
+    | `docker volume rm name` | Remove volume |
+
+    ```bash
+    docker run -v data:/var/lib/mysql mysql
+    ```
+  </Tab>
+</Tabs>
+
+<CodeGroup>
+```dockerfile Dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY . .
+EXPOSE 3000
+CMD ["node", "index.js"]
+```
+
+```yaml docker-compose.yml
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+  db:
+    image: postgres:16-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+```
+</CodeGroup>
+
+<Accordion title="Troubleshooting">
+**Permission denied:** Run with `--user` or ensure volume permissions. **Container exits immediately:** Check logs with `docker logs id`. **Port already in use:** Change host port or stop conflicting container.
+</Accordion>

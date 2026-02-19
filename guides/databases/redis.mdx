@@ -4,4 +4,79 @@ description: "Use Redis for caching, sessions, queues, and real-time features."
 icon: "bolt"
 ---
 
-{/* TODO: Add content — installation, data types, caching patterns, Laravel integration */}
+Use Redis for caching, sessions, queues, and real-time features in Laravel and other applications.
+
+<Info>
+**Prerequisites:** Sudo access on your system. Redis 6+ recommended for production.
+</Info>
+
+<Steps>
+  <Step title="Install Redis">
+    <CodeGroup>
+    ```bash Ubuntu
+    sudo apt update
+    sudo apt install redis-server -y
+    sudo systemctl start redis-server
+    sudo systemctl enable redis-server
+    ```
+
+    ```bash macOS
+    brew install redis
+    brew services start redis
+    ```
+    </CodeGroup>
+
+    <Check>Redis is running: `redis-cli ping` returns `PONG`.</Check>
+  </Step>
+
+  <Step title="Configure Laravel">
+    Install `php-redis`. In `config/database.php`, set `'client' => 'phpredis'` and configure host/port in the `default` connection. In `.env`: `REDIS_HOST=127.0.0.1`, `REDIS_PORT=6379`.
+  </Step>
+
+  <Step title="Test connection">
+    ```bash
+    redis-cli SET test "hello"
+    redis-cli GET test
+    ```
+
+    <Check>Returns `"hello"`. In Laravel: `php artisan tinker` then `Redis::ping()`.</Check>
+  </Step>
+</Steps>
+
+<Tabs>
+  <Tab title="Caching">
+    In `.env`: `CACHE_DRIVER=redis`. Laravel will use Redis for `Cache::get()`, `Cache::put()`, and view caching.
+  </Tab>
+
+  <Tab title="Sessions">
+    In `.env`: `SESSION_DRIVER=redis`. Sessions are stored in Redis instead of files. Set `SESSION_CONNECTION` if using a named Redis connection.
+  </Tab>
+
+  <Tab title="Queues">
+    In `.env`: `QUEUE_CONNECTION=redis`. Run `php artisan queue:work` to process jobs. Ensure Redis has enough memory for your queue depth.
+  </Tab>
+</Tabs>
+
+<Tip>
+Enable persistence so Redis survives restarts: edit `redis.conf` and set `appendonly yes` (AOF) or `save 900 1` (RDB). AOF is more durable; RDB is faster for restarts.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Connection refused">
+    Ensure Redis is running and listening on 127.0.0.1:6379. Check `redis-cli ping` locally.
+  </Accordion>
+  <Accordion title="phpredis extension missing">
+    Install via PECL: `pecl install redis` or your distro package: `sudo apt install php-redis` / `brew install php-redis`.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="MySQL" icon="database" href="/guides/databases/mysql">
+    Set up MySQL for relational data.
+  </Card>
+  <Card title="PostgreSQL" icon="database" href="/guides/databases/postgresql">
+    Use PostgreSQL for advanced features.
+  </Card>
+</Columns>

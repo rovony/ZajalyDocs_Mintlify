@@ -4,4 +4,83 @@ description: "Set up and manage PostgreSQL for applications that need advanced f
 icon: "database"
 ---
 
-{/* TODO: Add content — installation, roles, extensions, backups, connection pooling */}
+Set up PostgreSQL for applications that need advanced features like JSONB, full-text search, or transactional reliability.
+
+<Info>
+**Prerequisites:** sudo access on Ubuntu or macOS, and a non-root role for applications.
+</Info>
+
+<Tabs>
+  <Tab title="Ubuntu">
+    <Steps>
+      <Step title="Install PostgreSQL">
+        ```bash
+        sudo apt update
+        sudo apt install postgresql postgresql-contrib -y
+        sudo systemctl start postgresql
+        sudo systemctl enable postgresql
+        ```
+
+        <Check>PostgreSQL is running: `sudo systemctl status postgresql`.</Check>
+      </Step>
+
+      <Step title="Create role and database">
+        Switch to postgres: `sudo -u postgres psql`, then run:
+
+        <CodeGroup>
+        ```sql Create role and database
+        CREATE ROLE app_user WITH LOGIN PASSWORD 'secure_password';
+        CREATE DATABASE my_app_db OWNER app_user;
+        GRANT ALL PRIVILEGES ON DATABASE my_app_db TO app_user;
+        \q
+        ```
+        </CodeGroup>
+      </Step>
+
+      <Step title="Configure connection">
+        In `.env`: `DB_CONNECTION=pgsql`, `DB_HOST=127.0.0.1`, `DB_DATABASE=my_app_db`, `DB_USERNAME=app_user`, `DB_PASSWORD=secure_password`.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="macOS">
+    <Steps>
+      <Step title="Install PostgreSQL">
+        ```bash
+        brew install postgresql@16
+        brew services start postgresql@16
+        ```
+
+        <Check>PostgreSQL is running: `brew services list`.</Check>
+      </Step>
+
+      <Step title="Create role and database">
+        ```bash
+        psql postgres
+
+        CREATE ROLE app_user WITH LOGIN PASSWORD 'secure_password';
+        CREATE DATABASE my_app_db OWNER app_user;
+        GRANT ALL PRIVILEGES ON DATABASE my_app_db TO app_user;
+        \q
+        ```
+      </Step>
+
+      <Step title="Configure connection">
+        Same `.env` as Ubuntu. Add `psql` to PATH if needed: `brew link postgresql@16`.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+<Tip>
+Enable useful extensions: `CREATE EXTENSION pg_trgm;` for trigram search, `CREATE EXTENSION uuid-ossp;` for UUIDs. Use `\dx` in `psql` to list installed extensions.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Peer authentication failed">
+    Edit `pg_hba.conf`: use `md5` or `scram-sha-256` for localhost instead of `peer`.
+  </Accordion>
+  <Accordion title="Database does not exist">
+    Verify with `\l` in psql. Ensure `DB_DATABASE` in `.env` matches.
+  </Accordion>
+</AccordionGroup>

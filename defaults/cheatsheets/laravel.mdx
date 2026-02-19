@@ -1,0 +1,105 @@
+---
+title: "Laravel cheatsheet"
+description: "Quick reference for Artisan commands, Eloquent, routing, and common patterns."
+icon: "laravel"
+---
+
+Quick reference for Laravel commands and patterns. Use the tabs to find what you need.
+
+<Tabs>
+  <Tab title="Artisan">
+    | Command | Description |
+    |---------|-------------|
+    | `php artisan serve` | Start dev server |
+    | `php artisan migrate` | Run migrations |
+    | `php artisan make:model Post` | Create model |
+    | `php artisan make:controller PostController` | Create controller |
+    | `php artisan tinker` | REPL |
+
+    ```bash
+    php artisan make:model Post -mf
+    php artisan migrate
+    ```
+  </Tab>
+  <Tab title="Eloquent">
+    | Pattern | Example |
+    |---------|---------|
+    | All | `User::all()` |
+    | Find | `User::find(1)` |
+    | Where | `User::where('active', 1)->get()` |
+    | Create | `User::create(['name' => 'Jane'])` |
+    | Update | `$user->update(['name' => 'Jane'])` |
+
+    ```php
+    $users = User::where('active', true)
+        ->orderBy('created_at', 'desc')
+        ->paginate(15);
+    ```
+  </Tab>
+  <Tab title="Routing">
+    | Method | Example |
+    |--------|---------|
+    | GET | `Route::get('/users', [UserController::class, 'index'])` |
+    | POST | `Route::post('/users', [UserController::class, 'store'])` |
+    | Resource | `Route::resource('users', UserController::class)` |
+    | Group | `Route::prefix('api')->middleware('auth')->group(...)` |
+
+    ```php
+    Route::middleware(['auth'])->group(function () {
+        Route::resource('posts', PostController::class);
+    });
+    ```
+  </Tab>
+  <Tab title="Middleware">
+    | Command | Description |
+    |---------|-------------|
+    | `php artisan make:middleware CheckAge` | Create middleware |
+    | Register | Add to `bootstrap/app.php` or `app/Http/Kernel.php` |
+
+    ```php
+    // In middleware
+    if ($request->user()->age < 18) {
+        abort(403);
+    }
+    return $next($request);
+    ```
+  </Tab>
+  <Tab title="Testing">
+    | Command | Description |
+    |---------|-------------|
+    | `php artisan test` | Run tests |
+    | `php artisan test --filter=UserTest` | Run specific test |
+
+    ```php
+    $this->get('/users')->assertStatus(200);
+    $this->post('/users', $data)->assertCreated();
+    ```
+  </Tab>
+</Tabs>
+
+<CodeGroup>
+```php Controller example
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email',
+    ]);
+    return User::create($validated);
+}
+```
+
+```php Model example
+class Post extends Model
+{
+    protected $fillable = ['title', 'body', 'user_id'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+```
+</CodeGroup>
+
+<Tip>Create custom Artisan commands with `php artisan make:command SyncData`. Put logic in the `handle()` method.</Tip>

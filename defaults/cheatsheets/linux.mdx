@@ -1,0 +1,90 @@
+---
+title: "Linux cheatsheet"
+description: "Quick reference for essential Linux commands, file management, and system administration."
+icon: "linux"
+---
+
+Quick reference for essential Linux commands. Use the tabs to find commands by category.
+
+<Tabs>
+  <Tab title="Files">
+    | Command | Description |
+    |---------|-------------|
+    | `ls -la` | List all with details |
+    | `cd /path` | Change directory |
+    | `cp src dst` | Copy |
+    | `mv src dst` | Move/rename |
+    | `rm -r dir` | Remove recursively |
+
+    ```bash
+    ls -la /var/log
+    cp config.env config.env.bak
+    ```
+  </Tab>
+  <Tab title="Users">
+    | Command | Description |
+    |---------|-------------|
+    | `whoami` | Current user |
+    | `sudo cmd` | Run as root |
+    | `adduser name` | Add user |
+    | `usermod -aG group user` | Add to group |
+    | `chown user:group file` | Change owner |
+
+    ```bash
+    sudo adduser deploy
+    sudo usermod -aG www-data deploy
+    ```
+  </Tab>
+  <Tab title="Network">
+    | Command | Description |
+    |---------|-------------|
+    | `curl url` | Fetch URL |
+    | `ss -tlnp` | List listening ports |
+    | `ping host` | Test connectivity |
+    | `ssh user@host` | SSH connect |
+
+    ```bash
+    curl -I https://example.com
+    ss -tlnp | grep 80
+    ```
+  </Tab>
+  <Tab title="Processes">
+    | Command | Description |
+    |---------|-------------|
+    | `ps aux` | List processes |
+    | `top` | Interactive monitor |
+    | `kill -9 pid` | Force kill |
+    | `systemctl status nginx` | Service status |
+
+    ```bash
+    ps aux | grep nginx
+    systemctl restart nginx
+    ```
+  </Tab>
+  <Tab title="Disk">
+    | Command | Description |
+    |---------|-------------|
+    | `df -h` | Disk usage |
+    | `du -sh dir` | Dir size |
+    | `free -h` | Memory usage |
+
+    ```bash
+    df -h
+    du -sh /var/log/*
+    ```
+  </Tab>
+</Tabs>
+
+<AccordionGroup>
+  <Accordion title="Find large files">
+    `find / -type f -size +100M 2>/dev/null` — find files larger than 100MB.
+  </Accordion>
+  <Accordion title="Check disk usage">
+    `du -sh * | sort -hr | head -20` — show top 20 largest items in current directory.
+  </Accordion>
+  <Accordion title="Kill zombie processes">
+    Zombies are reaped by their parent. Restart the parent process or reboot if needed.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>Add aliases: `alias ll='ls -la'`, `alias ..='cd ..'`, `alias g=git`. Put in `~/.bashrc` or `~/.zshrc`.</Tip>

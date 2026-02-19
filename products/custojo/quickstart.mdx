@@ -5,4 +5,108 @@ description: "Get started with Custojo CRM in under 5 minutes."
 icon: "rocket"
 ---
 
-{/* TODO: Add content — account creation, first contact, pipeline setup */}
+This guide walks you through creating a Custojo account, obtaining an API key, and making your first contact via the API.
+
+<Info>
+**Prerequisites:** A Custojo account and an API key. Sign up at [app.custojo.com](https://app.custojo.com) if you do not have one yet.
+</Info>
+
+## Steps
+
+<Steps>
+  <Step title="Create an account">
+    Go to [app.custojo.com](https://app.custojo.com) and sign up with your work email. Verify your account via the confirmation link.
+
+    <Check>You receive a welcome email and can log in to the dashboard.</Check>
+  </Step>
+
+  <Step title="Get your API key">
+    In the Custojo dashboard, go to **Settings → API Keys**. Click **Create API key**, name it (e.g., "Dev sandbox"), and copy the key. Store it securely.
+
+    <Check>The key appears only once. You see it in the list as a masked value afterward.</Check>
+  </Step>
+
+  <Step title="Make your first request">
+    Call the health endpoint to confirm your API key works:
+
+    <CodeGroup>
+```bash cURL
+curl -X GET 'https://api.custojo.com/v1/health' \
+  -H 'Authorization: Bearer YOUR_API_KEY'
+```
+
+```javascript Node.js
+const response = await fetch('https://api.custojo.com/v1/health', {
+  headers: { Authorization: `Bearer ${process.env.CUSTOJO_API_KEY}` }
+});
+```
+
+```python Python
+import requests
+response = requests.get(
+  'https://api.custojo.com/v1/health',
+  headers={'Authorization': f'Bearer {api_key}'}
+)
+```
+    </CodeGroup>
+
+    <Check>Response: `{"status": "ok", "version": "1.0"}`</Check>
+  </Step>
+
+  <Step title="Create a contact">
+    Create your first contact with the following request:
+
+    <CodeGroup>
+```bash cURL
+curl -X POST 'https://api.custojo.com/v1/contacts' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Jane Doe",
+    "email": "jane@acme.com",
+    "phone": "+1-555-0123"
+  }'
+```
+
+```javascript Node.js
+const response = await fetch('https://api.custojo.com/v1/contacts', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${process.env.CUSTOJO_API_KEY}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    name: 'Jane Doe',
+    email: 'jane@acme.com',
+    phone: '+1-555-0123'
+  })
+});
+```
+
+```python Python
+import requests
+response = requests.post(
+  'https://api.custojo.com/v1/contacts',
+  headers={
+    'Authorization': f'Bearer {api_key}',
+    'Content-Type': 'application/json'
+  },
+  json={
+    'name': 'Jane Doe',
+    'email': 'jane@acme.com',
+    'phone': '+1-555-0123'
+  }
+)
+```
+    </CodeGroup>
+
+    <Warning>Never commit your API key to version control. Use environment variables or a secrets manager.</Warning>
+
+    <Check>Response includes `id`, `name`, `email`, and `created_at` for the new contact.</Check>
+  </Step>
+</Steps>
+
+## Next steps
+
+- [API Reference](/products/custojo/api) — Explore endpoints for contacts, pipelines, and deals.
+- [Overview](/products/custojo/overview) — Learn about automation and pipelines.

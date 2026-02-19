@@ -4,4 +4,54 @@ description: "Side-by-side comparisons of developer tools, frameworks, and servi
 icon: "scale-balanced"
 ---
 
-{/* TODO: Add content — comparison tables, pros/cons, verdict, links to setup guides */}
+Side-by-side comparisons help you choose the right tool for your stack. Each comparison includes feature tables, pros and cons, and a clear recommendation.
+
+<Tabs>
+  <Tab title="Hosting: Vercel vs Netlify vs Railway">
+    | Feature | Vercel | Netlify | Railway |
+    |---------|--------|---------|---------|
+    | Static sites | Yes | Yes | Yes |
+    | Serverless | Edge functions | Functions | Custom services |
+    | Databases | Add-on | Add-on | Built-in |
+    | Monorepos | Yes | Yes | Yes |
+    | Free tier | Generous | Generous | $5 credit |
+
+    **Vercel pros:** Best Next.js support, fastest previews, edge functions | **Cons:** Cold starts
+
+    **Netlify pros:** Strong forms/identity, split testing | **Cons:** Build minutes limits
+
+    **Railway pros:** Full-stack in one place, databases | **Cons:** Fewer regions
+
+    <Tip><Badge>Recommended</Badge> Use Vercel for Next.js/React, Netlify for Jamstack sites with forms, Railway for full-stack apps with a database.</Tip>
+  </Tab>
+  <Tab title="Databases: MySQL vs PostgreSQL">
+    | Feature | MySQL | PostgreSQL |
+    |---------|-------|------------|
+    | ACID | Yes | Yes |
+    | JSON support | Yes | Yes (richer) |
+    | Full-text search | Basic | Advanced |
+    | Extensions | Limited | Extensive |
+    | Replication | Strong | Strong |
+
+    **MySQL pros:** Simpler, wide hosting support, Laravel default | **Cons:** Fewer advanced types
+
+    **PostgreSQL pros:** JSONB, arrays, CTEs, extensions | **Cons:** Steeper learning curve
+
+    <Tip><Badge>Recommended</Badge> Choose PostgreSQL for complex queries, JSON-heavy workloads, or when you need extensions. Choose MySQL for Laravel defaults and simpler hosting.</Tip>
+  </Tab>
+  <Tab title="CI/CD: GitHub Actions vs GitLab CI">
+    | Feature | GitHub Actions | GitLab CI |
+    |---------|----------------|-----------|
+    | Free tier | 2000 min/mo | 400 min/mo |
+    | Secrets | Built-in | Built-in |
+    | Container registry | Yes | Yes |
+    | Security scanning | Marketplace | Built-in |
+    | Deployment | Manual config | Built-in environments |
+
+    **GitHub Actions pros:** Large marketplace, familiar to GitHub users | **Cons:** YAML verbosity
+
+    **GitLab CI pros:** All-in-one, built-in registry, templates | **Cons:** Runner setup overhead
+
+    <Tip><Badge>Recommended</Badge> Use GitHub Actions if you are on GitHub and want the ecosystem. Use GitLab CI if you want one platform for code, CI, and registry.</Tip>
+  </Tab>
+</Tabs>

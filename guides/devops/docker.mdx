@@ -4,4 +4,100 @@ description: "Containerize applications with Docker for consistent development a
 icon: "cube"
 ---
 
-{/* TODO: Add content — Dockerfile, docker-compose, multi-stage builds, volumes */}
+Docker packages your application and dependencies into portable images. Run the same image in local dev, CI, and production.
+
+<Info>
+**Prerequisites:** Docker Desktop (or Engine + Compose) installed. Basic familiarity with terminals and your app's runtime (Node, PHP, etc.).
+</Info>
+
+## Dockerfile approaches
+
+<Tabs>
+  <Tab title="Development">
+    Optimized for fast rebuilds and hot reload. Uses volume mounts and fewer layers.
+
+    <CodeGroup>
+```dockerfile Dockerfile.dev
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+CMD ["npm", "run", "dev"]
+```
+    </CodeGroup>
+  </Tab>
+  <Tab title="Production">
+    Smaller image, multi-stage build, non-root user. No dev dependencies.
+
+    <CodeGroup>
+```dockerfile Dockerfile.prod
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY . .
+RUN npm run build
+
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+USER node
+EXPOSE 3000
+CMD ["node", "dist/index.js"]
+```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+## Quick start
+
+<Steps>
+  <Step title="Install Docker">
+    Download [Docker Desktop](https://docs.docker.com/get-docker/) for your OS. Verify with `docker --version`.
+  </Step>
+  <Step title="Create a Dockerfile">
+    Add a `Dockerfile` in your project root with `FROM`, `WORKDIR`, `COPY`, and `CMD`.
+  </Step>
+  <Step title="Build the image">
+    Run `docker build -t myapp:latest .` from the project directory.
+  </Step>
+  <Step title="Run the container">
+    Run `docker run -p 3000:3000 myapp:latest` to expose port 3000.
+  </Step>
+</Steps>
+
+<CodeGroup>
+```yaml docker-compose.yml
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:
+```
+</CodeGroup>
+
+<Warning>Large base images (e.g. `node:20` instead of `node:20-alpine`) increase build time and deployment size. Prefer `-alpine` or distroless when possible.</Warning>
+
+<Tip>Use multi-stage builds: build in one stage, copy only artifacts (e.g. compiled code, `node_modules`) into a minimal final stage to shrink image size.</Tip>
+
+<AccordionGroup>
+  <Accordion title="Permission denied or EACCES" icon="lock">
+    Run as non-root in production. Add `USER node` (or another user) and ensure volumes have correct ownership.
+  </Accordion>
+  <Accordion title="Container exits immediately" icon="circle-exclamation">
+    The main process must stay in foreground. Use `npm run dev` or `node server.js`, not `npm start` if it forks or exits.
+  </Accordion>
+</AccordionGroup>

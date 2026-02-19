@@ -4,4 +4,90 @@ description: "Set up, optimize, and manage MySQL databases for production worklo
 icon: "database"
 ---
 
-{/* TODO: Add content — installation, user management, backups, performance tuning */}
+Set up and manage MySQL databases for Laravel, Django, or other applications that need a relational database.
+
+<Info>
+**Prerequisites:** sudo access on Ubuntu or macOS, and a non-root user for running applications.
+</Info>
+
+<Tabs>
+  <Tab title="Ubuntu">
+    <Steps>
+      <Step title="Install MySQL">
+        ```bash
+        sudo apt update
+        sudo apt install mysql-server -y
+        sudo systemctl start mysql
+        sudo systemctl enable mysql
+        ```
+
+        <Check>MySQL is running: `sudo systemctl status mysql`.</Check>
+      </Step>
+
+      <Step title="Secure installation">
+        Run the security script:
+
+        ```bash
+        sudo mysql_secure_installation
+        ```
+
+        Set root password, remove anonymous users, disallow remote root. <Check>Script completes.</Check>
+      </Step>
+
+      <Step title="Create user and database">
+        Run `sudo mysql -u root -p`, then:
+
+        <CodeGroup>
+        ```sql Create user and database
+        CREATE USER 'app_user'@'localhost' IDENTIFIED BY 'secure_password';
+        CREATE DATABASE my_app_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+        GRANT ALL PRIVILEGES ON my_app_db.* TO 'app_user'@'localhost';
+        FLUSH PRIVILEGES;
+        EXIT;
+        ```
+        </CodeGroup>
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="macOS">
+    <Steps>
+      <Step title="Install MySQL">
+        ```bash
+        brew install mysql
+        brew services start mysql
+        ```
+
+        <Check>MySQL is running: `brew services list`.</Check>
+      </Step>
+
+      <Step title="Secure installation">
+        Run `mysql_secure_installation`; set root password and disable remote root.
+      </Step>
+
+      <Step title="Create user and database">
+        Run `mysql -u root -p`, then:
+
+        ```sql
+        CREATE USER 'app_user'@'localhost' IDENTIFIED BY 'secure_password';
+        CREATE DATABASE my_app_db CHARACTER SET utf8mb4;
+        GRANT ALL ON my_app_db.* TO 'app_user'@'localhost';
+        FLUSH PRIVILEGES; EXIT;
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+<Warning>
+Avoid using the MySQL root user for application connections. Create a dedicated user with minimal privileges per database.
+</Warning>
+
+<Tip>
+Enable slow query log, tune `innodb_buffer_pool_size` (~70% RAM), and consider connection pooling for production.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Access denied for user">Verify user: `SELECT User, Host FROM mysql.user`. Host must match (`localhost` vs `127.0.0.1`).</Accordion>
+  <Accordion title="Can't connect to MySQL server">Check MySQL is running, listening on 3306, and firewall allows local connections.</Accordion>
+</AccordionGroup>

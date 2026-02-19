@@ -5,7 +5,56 @@ description: "Deployment management and server orchestration for your infrastruc
 icon: "server"
 ---
 
-{/* TODO: Add content — product overview, features, supported providers */}
+DeployVault manages <Tooltip tip="The process of building, configuring, and releasing applications to servers or cloud environments">deployments</Tooltip> and server orchestration. Connect your servers, define deployment targets, and deploy applications with rollback support and audit logs.
+
+<Badge>New</Badge>
+
+## Architecture
+
+```mermaid
+flowchart TB
+  subgraph Control
+    A[DeployVault Dashboard]
+    B[CLI / API]
+  end
+
+  subgraph Orchestration
+    C[Deploy Queue]
+    D[Build Service]
+    E[Secrets Vault]
+  end
+
+  subgraph Targets
+    F[VPS / Dedicated]
+    G[AWS / GCP]
+  end
+
+  A --> C
+  B --> C
+  C --> D
+  C --> E
+  D --> F
+  D --> G
+  E --> F
+  E --> G
+```
+
+## Features
+
+<Columns cols={2}>
+  <Card title="Server management" icon="server" href="/products/deployvault/quickstart">
+    Connect SSH servers, configure keys, and group hosts by environment.
+  </Card>
+  <Card title="Deployments" icon="rocket" href="/products/deployvault/quickstart">
+    Deploy from Git, run build commands, and manage release artifacts.
+  </Card>
+  <Card title="Secrets" icon="key" href="/products/deployvault/quickstart">
+    Store API keys and credentials; inject at deploy time without exposing in logs.
+  </Card>
+  <Card title="Rollbacks" icon="rotate-left" href="/products/deployvault/quickstart">
+    One-click rollback to the previous deployment with full audit trail.
+  </Card>
+</Columns>
 
 ## Get started
 

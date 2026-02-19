@@ -1,0 +1,96 @@
+---
+title: "Scripts"
+description: "Write Python scripts for file processing, data transformation, and task automation."
+icon: "scroll"
+---
+
+Python scripts handle file I/O, CSV processing, and API calls. Structure them with argument parsing and error handling for robustness.
+
+<Steps>
+  <Step title="Create the script file">
+    ```bash
+    touch process_files.py
+    chmod +x process_files.py
+    ```
+  </Step>
+  <Step title="Add argument parsing">
+    <CodeGroup>
+    ```python process_files.py
+    import argparse
+    parser = argparse.ArgumentParser(description='Process files')
+    parser.add_argument('input', help='Input file path')
+    parser.add_argument('-o', '--output', default='output.csv')
+    parser.add_argument('-v', '--verbose', action='store_true')
+    args = parser.parse_args()
+    ```
+    </CodeGroup>
+  </Step>
+  <Step title="Handle errors">
+    ```python
+    import sys
+    try:
+        with open(args.input) as f:
+            data = process(f.read())
+    except FileNotFoundError:
+        print(f'Error: {args.input} not found', file=sys.stderr)
+        sys.exit(1)
+    ```
+  </Step>
+  <Step title="Run the script">
+    ```bash
+    python process_files.py data.csv -o result.csv --verbose
+    ```
+  </Step>
+</Steps>
+
+<CodeGroup>
+```python file_processing.py
+import pathlib
+for p in pathlib.Path('.').glob('*.json'):
+    content = p.read_text()
+    processed = transform(content)
+    p.with_suffix('.out').write_text(processed)
+```
+
+```python csv_handling.py
+import csv
+with open('data.csv') as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        process_row(row)
+```
+
+```python api_calls.py
+import requests
+resp = requests.get('https://api.example.com/data')
+resp.raise_for_status()
+data = resp.json()
+```
+</CodeGroup>
+
+<Tip>
+Group related scripts in a `scripts/` folder. Use a `if __name__ == '__main__':` block so logic is importable and runnable.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Script runs in wrong directory">
+    Use `pathlib.Path(__file__).parent` to resolve paths relative to the script location.
+  </Accordion>
+  <Accordion title="Encoding errors with non-UTF-8 files">
+    Open with `open(path, encoding='utf-8', errors='replace')` or detect encoding via `chardet`.
+  </Accordion>
+  <Accordion title="Large files cause memory issues">
+    Use generators, `csv.reader` row-by-row, or `chunked` reads instead of loading the full file.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Python setup" icon="python" href="/guides/python/setup">
+    Virtual environments and tooling.
+  </Card>
+  <Card title="Automation" icon="robot" href="/guides/python/automation">
+    Schedule and automate scripts.
+  </Card>
+</Columns>

@@ -4,4 +4,81 @@ description: "Set up SSH keys, config files, and secure remote access to your se
 icon: "key"
 ---
 
-{/* TODO: Add content — key generation, ssh config, agent forwarding, hardening */}
+Configure SSH key authentication and client config so you can connect to servers without typing passwords and with consistent host aliases.
+
+<Info>
+**Prerequisites:** SSH client installed (OpenSSH on macOS/Linux, or Windows OpenSSH or PuTTY), terminal access.
+</Info>
+
+<Steps>
+  <Step title="Generate a key pair">
+    Create an ED25519 key pair (or RSA if your environment requires it):
+
+    <CodeGroup>
+    ```bash OpenSSH (ED25519)
+    ssh-keygen -t ed25519 -C "you@example.com" -f ~/.ssh/id_ed25519
+    ```
+
+    ```bash OpenSSH (RSA fallback)
+    ssh-keygen -t rsa -b 4096 -C "you@example.com" -f ~/.ssh/id_rsa
+    ```
+    </CodeGroup>
+
+    Press Enter when prompted for a passphrase (or enter one for extra security).
+  </Step>
+
+  <Step title="Copy the public key to the server">
+    Use `ssh-copy-id` to append your public key to the server's `authorized_keys`:
+
+    ```bash
+    ssh-copy-id -i ~/.ssh/id_ed25519.pub user@YOUR_SERVER_IP
+    ```
+
+    <Check>You can log in without a password using `ssh user@YOUR_SERVER_IP`.</Check>
+  </Step>
+
+  <Step title="Configure SSH config file">
+    Edit `~/.ssh/config` to define host aliases and options:
+
+    ```bash
+    # ~/.ssh/config
+    Host prod
+      HostName 203.0.113.50
+      User deploy
+      IdentityFile ~/.ssh/id_ed25519
+
+    Host staging
+      HostName 203.0.113.51
+      User deploy
+      IdentityFile ~/.ssh/id_ed25519
+    ```
+
+    Then connect with `ssh prod` or `ssh staging`.
+  </Step>
+
+  <Step title="Test the connection">
+    Verify that the config works and key-based auth succeeds:
+
+    ```bash
+    ssh prod "echo 'Connected successfully'"
+    ```
+
+    <Check>You see "Connected successfully" with no password prompt.</Check>
+  </Step>
+</Steps>
+
+<Warning>
+**Private key safety:** Never share your private key (`id_ed25519` or `id_rsa`). Do not commit it to version control. Use `chmod 600 ~/.ssh/id_ed25519` to restrict permissions.
+</Warning>
+
+<AccordionGroup>
+  <Accordion title="Could not resolve hostname">
+    Ensure `HostName` in `~/.ssh/config` is correct. Use the IP address if DNS is not set up.
+  </Accordion>
+  <Accordion title="Permission denied (publickey)">
+    Confirm your public key is in `~/.ssh/authorized_keys` on the server. Check file permissions: `~/.ssh` should be `700`, `authorized_keys` should be `600`.
+  </Accordion>
+  <Accordion title="Too many authentication failures">
+    Limit keys offered with `IdentitiesOnly yes` in your config, or use `ssh -o IdentitiesOnly=yes prod`.
+  </Accordion>
+</AccordionGroup>

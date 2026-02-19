@@ -4,4 +4,94 @@ description: "Provision and configure a virtual private server from scratch."
 icon: "server"
 ---
 
-{/* TODO: Add content — initial server provisioning, OS selection, first login */}
+Provision a virtual private server from a cloud provider and perform initial configuration so you have a ready-to-use Linux environment.
+
+<Info>
+**Prerequisites:** A cloud provider account (DigitalOcean, Linode, Vultr, or similar), a credit card for billing, and basic familiarity with the command line.
+</Info>
+
+<Steps>
+  <Step title="Choose a provider">
+    Select a VPS provider based on your needs: region, price, and instance size. Popular options include DigitalOcean, Linode, Vultr, and Hetzner.
+
+    <Check>You have an account and can access the provider's dashboard.</Check>
+  </Step>
+
+  <Step title="Create a server">
+    Create a new droplet/instance in your provider's dashboard. Choose your region, select an image, and pick a plan (e.g., 1 GB RAM, 1 vCPU). Add your SSH key during creation if available.
+  </Step>
+
+  <Step title="First login">
+    After the server is provisioned, connect via SSH using the provided IP address and root password (or your SSH key):
+
+    <Tabs>
+      <Tab title="Ubuntu">
+        ```bash
+        ssh root@YOUR_SERVER_IP
+        ```
+      </Tab>
+      <Tab title="Debian">
+        ```bash
+        ssh root@YOUR_SERVER_IP
+        ```
+      </Tab>
+    </Tabs>
+
+    <Check>You see a shell prompt indicating a successful connection.</Check>
+  </Step>
+
+  <Step title="Initial configuration">
+    Run your provider's recommended setup script or perform manual setup:
+
+    <Tabs>
+      <Tab title="Ubuntu">
+        ```bash
+        apt update && apt upgrade -y
+        adduser deploy
+        usermod -aG sudo deploy
+        ```
+      </Tab>
+      <Tab title="Debian">
+        ```bash
+        apt update && apt upgrade -y
+        adduser deploy
+        usermod -aG sudo deploy
+        ```
+      </Tab>
+    </Tabs>
+
+    Replace `deploy` with your preferred username. Ensure your SSH key is added to the new user's `~/.ssh/authorized_keys` before disconnecting.
+  </Step>
+</Steps>
+
+## Verification
+
+Confirm connectivity and that the new user has sudo access:
+
+```bash
+ssh deploy@YOUR_SERVER_IP
+sudo -v
+```
+
+<AccordionGroup>
+  <Accordion title="Connection refused on port 22">
+    Ensure the server is running and your firewall allows inbound SSH (port 22). Check the provider's firewall and security group settings.
+  </Accordion>
+  <Accordion title="Permission denied (publickey)">
+    Verify your SSH key was added during server creation, or manually append your public key to `~/.ssh/authorized_keys` on the server.
+  </Accordion>
+  <Accordion title="Server IP not responding">
+    Wait a few minutes after creation for the server to boot. Ping the IP to confirm it is reachable.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="SSH configuration" icon="key" href="/guides/servers/ssh-config">
+    Set up SSH keys and config files for easier access.
+  </Card>
+  <Card title="Security hardening" icon="shield-halved" href="/guides/servers/security-hardening">
+    Harden your server against common attacks.
+  </Card>
+</Columns>

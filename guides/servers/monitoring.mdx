@@ -4,4 +4,99 @@ description: "Monitor server health, uptime, and performance with alerting."
 icon: "chart-line"
 ---
 
-{/* TODO: Add content — tools (htop, netdata, uptime kuma), alerting, log management */}
+Set up monitoring tools to track CPU, memory, disk usage, and uptime, with optional alerting for issues.
+
+<Info>
+**Prerequisites:** A running Linux server (Ubuntu or Debian), sudo access, and ports 19999 (Netdata) or 3001 (Uptime Kuma) open if using those services.
+</Info>
+
+<Tabs>
+  <Tab title="htop">
+    ## htop
+
+    Lightweight, real-time process viewer. Useful for quick checks from the terminal.
+
+    <Steps>
+      <Step title="Install htop">
+        <CodeGroup>
+        ```bash Ubuntu/Debian
+        sudo apt update
+        sudo apt install -y htop
+        ```
+
+        ```bash RHEL/CentOS
+        sudo dnf install -y htop
+        ```
+        </CodeGroup>
+      </Step>
+      <Step title="Run htop">
+        ```bash
+        htop
+        ```
+
+        Use arrow keys to navigate, `F10` to exit.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Netdata">
+    ## Netdata
+
+    Real-time dashboard for system metrics, accessible via web browser.
+
+    <Steps>
+      <Step title="Install Netdata">
+        ```bash
+        curl https://get.netdata.cloud/kickstart.sh > /tmp/netdata-kickstart.sh
+        sh /tmp/netdata-kickstart.sh
+        ```
+      </Step>
+      <Step title="Access the dashboard">
+        Open `http://YOUR_SERVER_IP:19999` in your browser. Ensure port 19999 is allowed through your firewall.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Uptime Kuma">
+    ## Uptime Kuma
+
+    Self-hosted uptime monitor with HTTP, TCP, and ping checks and alerting.
+
+    <Steps>
+      <Step title="Install Node.js and PM2">
+        ```bash
+        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+        sudo apt install -y nodejs
+        sudo npm install -g pm2
+        ```
+      </Step>
+      <Step title="Install Uptime Kuma">
+        ```bash
+        git clone https://github.com/louislam/uptime-kuma.git
+        cd uptime-kuma
+        npm run setup
+        pm2 start npm --name "uptime-kuma" -- run start
+        pm2 save && pm2 startup
+        ```
+      </Step>
+      <Step title="Access the UI">
+        Open `http://YOUR_SERVER_IP:3001` and complete the initial setup. Add monitors for your endpoints and configure alerts (email, Slack, etc.).
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+<Tip>
+**Alerting best practices:** Configure alerts for critical services only to avoid alert fatigue. Set meaningful thresholds (e.g., disk &gt; 90%, CPU sustained high). Use multiple notification channels (email + Slack) for critical alerts.
+</Tip>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="VPS setup" icon="server" href="/guides/servers/vps-setup">
+    Provision and configure a new server from scratch.
+  </Card>
+  <Card title="Security hardening" icon="shield-halved" href="/guides/servers/security-hardening">
+    Harden your server against attacks.
+  </Card>
+</Columns>

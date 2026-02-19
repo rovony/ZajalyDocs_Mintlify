@@ -4,4 +4,103 @@ description: "Branching strategies, commit conventions, and team collaboration w
 icon: "code-branch"
 ---
 
-{/* TODO: Add content — trunk-based, GitFlow, conventional commits, PR workflow */}
+Effective Git workflows keep your team aligned on branching, commits, and collaboration. Choose a strategy that fits your release cadence and team size.
+
+## Workflow types
+
+<Tabs>
+  <Tab title="Trunk-based">
+    Short-lived feature branches merge into a single `main` branch. Good for continuous deployment.
+
+    ```mermaid
+    graph LR
+      main((main)) --> f1[feature/add-login]
+      main --> f2[feature/api-endpoint]
+      f1 --> main
+      f2 --> main
+    ```
+
+    Branch names: `feature/<name>`, `fix/<name>`. Merge via PR within 1-2 days.
+  </Tab>
+  <Tab title="GitFlow">
+    Long-running `develop` branch with `main` for production. Use for versioned releases.
+
+    ```mermaid
+    graph TB
+      main((main))
+      develop((develop))
+      main --> release/release-1.0
+      develop --> release/release-1.0
+      release/release-1.0 --> main
+      develop --> feature/a
+      feature/a --> develop
+    ```
+
+    Branches: `develop` (integration), `release/*`, `hotfix/*`, `feature/*`.
+  </Tab>
+  <Tab title="GitHub Flow">
+    Single `main` branch, always deployable. Feature branches merge directly to `main`.
+
+    ```mermaid
+    graph LR
+      main((main))
+      main --> fb[feature-branch]
+      fb --> main
+    ```
+
+    No `develop`. Use branch protection and PR reviews.
+  </Tab>
+</Tabs>
+
+## Conventional commits
+
+<Steps>
+  <Step title="Install commitizen (optional)">
+    Use Commitizen for interactive commit prompts:
+
+    <CodeGroup>
+```bash npm install
+npm install -g commitizen cz-conventional-changelog
+```
+
+```bash configure
+echo '{ "path": "cz-conventional-changelog" }' > ~/.czrc
+```
+    </CodeGroup>
+  </Step>
+  <Step title="Format your commits">
+    Use the conventional commit format:
+
+    ```
+    <type>(<scope>): <description>
+
+    [optional body]
+
+    [optional footer]
+    ```
+
+    Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`.
+  </Step>
+  <Step title="Commit with the CLI">
+    <CodeGroup>
+```bash example commits
+git commit -m "feat(auth): add JWT login endpoint"
+git commit -m "fix(api): resolve pagination off-by-one error"
+git commit -m "docs(readme): update installation steps"
+```
+    </CodeGroup>
+
+    <Check>Each commit message is scannable and machine-parseable.</Check>
+  </Step>
+</Steps>
+
+<Tip>Enforce conventions with `commitlint` and `husky` pre-commit hooks. Add a `commitlint.config.js` and run `commitlint` on `commit-msg`.</Tip>
+
+<Columns cols={2}>
+  <Card title="CI/CD" icon="arrows-spin" href="/guides/devops/ci-cd">
+    Automate tests and deployments with pipelines.
+  </Card>
+  <Card title="Docker" icon="cube" href="/guides/devops/docker">
+    Containerize applications for consistent environments.
+  </Card>
+</Columns>

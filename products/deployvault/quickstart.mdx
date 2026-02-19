@@ -5,4 +5,61 @@ description: "Connect your first server and deploy an application with DeployVau
 icon: "rocket"
 ---
 
-{/* TODO: Add content — server connection, deployment config, first deploy */}
+This guide walks you through connecting your first server to DeployVault, configuring a deployment, and shipping your first application.
+
+<Info>
+**Prerequisites:** A DeployVault account, a server with SSH access, and your application code in a Git repository. Sign up at [app.deployvault.com](https://app.deployvault.com).
+</Info>
+
+## Steps
+
+<Steps>
+  <Step title="Connect your server">
+    In the DeployVault dashboard, go to **Servers → Add server**. Enter your server hostname or IP, SSH port (default 22), and paste your SSH public key or upload a private key for DeployVault to use.
+
+    <CodeGroup>
+```bash SSH key
+# Generate a deploy key if needed
+ssh-keygen -t ed25519 -C "deploy@deployvault" -f ~/.ssh/deployvault_key -N ""
+```
+    </CodeGroup>
+
+    <Check>DeployVault connects and shows the server as "Connected" in the dashboard.</Check>
+  </Step>
+
+  <Step title="Configure your deployment">
+    Go to **Deployments → New deployment**. Link your Git repo (GitHub, GitLab, or URL), select the branch, and set the build command and start command:
+
+    <CodeGroup>
+```bash Build & start
+# Example: Node.js app
+Build: npm ci && npm run build
+Start: node dist/index.js
+
+# Example: Laravel app
+Build: composer install --no-dev && php artisan optimize
+Start: php artisan serve --host=0.0.0.0
+```
+    </CodeGroup>
+
+    <Check>Deployment configuration is saved and ready to deploy.</Check>
+  </Step>
+
+  <Step title="Deploy">
+    Click **Deploy** or trigger a deployment from the CLI. DeployVault pulls the latest commit, runs the build, and starts the app on your server.
+
+    <CodeGroup>
+```bash CLI
+deployvault deploy --project my-app --env production
+```
+    </CodeGroup>
+
+    <Warning>Ensure your server has enough disk space and memory for the build. Large builds may fail on constrained VPS instances.</Warning>
+
+    <Check>Deployment completes and your app is live at the configured URL.</Check>
+  </Step>
+</Steps>
+
+## Next steps
+
+- [Overview](/products/deployvault/overview) — Learn about rollbacks, secrets, and multi-environment deploys.

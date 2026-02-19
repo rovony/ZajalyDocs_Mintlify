@@ -1,0 +1,85 @@
+---
+title: "Python setup"
+description: "Install Python, configure virtual environments, and set up your development workflow."
+icon: "python"
+---
+
+Install Python, create isolated virtual environments, and configure your development environment.
+
+<Info>
+**Prerequisites:** Terminal access, admin rights for package managers.
+</Info>
+
+<Tabs>
+  <Tab title="macOS">
+    ```bash
+    brew install python@3.12
+    python3 --version
+    ```
+  </Tab>
+  <Tab title="Ubuntu">
+    ```bash
+    sudo apt update
+    sudo apt install python3.12 python3.12-venv python3-pip -y
+    python3 --version
+    ```
+  </Tab>
+  <Tab title="Windows">
+    ```powershell
+    winget install Python.Python.3.12
+    python --version
+    ```
+  </Tab>
+</Tabs>
+
+<Steps>
+  <Step title="Create virtual environment">
+    ```bash
+    python3 -m venv .venv
+    ```
+  </Step>
+  <Step title="Activate and install packages">
+    <CodeGroup>
+    ```bash macOS/Linux
+    source .venv/bin/activate
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    ```
+    ```powershell Windows
+    .venv\Scripts\Activate
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    ```
+    </CodeGroup>
+  </Step>
+  <Step title="Configure IDE">
+    Point your editor to the venv interpreter: `.venv/bin/python` (macOS/Linux) or `.venv\Scripts\python.exe` (Windows). VS Code and PyCharm auto-detect it.
+  </Step>
+</Steps>
+
+<Check>
+After setup, `python --version` shows Python 3.12+ and `which python` points to `.venv/bin/python`.
+</Check>
+
+<AccordionGroup>
+  <Accordion title="pip: command not found">
+    Use `python3 -m pip` instead of `pip` when the command is not in PATH.
+  </Accordion>
+  <Accordion title="Permission denied creating venv">
+    Ensure you have write access to the directory. Do not use `sudo` to create venvs.
+  </Accordion>
+  <Accordion title="SSL certificate errors with pip">
+    Upgrade pip and ensure your system trust store is updated: `pip install --upgrade certifi`.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Scripts" icon="scroll" href="/guides/python/scripts">
+    Write Python scripts for automation.
+  </Card>
+  <Card title="Automation" icon="robot" href="/guides/python/automation">
+    Schedule tasks and integrate APIs.
+  </Card>
+</Columns>

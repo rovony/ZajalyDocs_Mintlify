@@ -4,4 +4,80 @@ description: "Deploy Laravel applications to production with zero downtime."
 icon: "rocket"
 ---
 
-{/* TODO: Add content — Deployer, Forge, manual deploy, environment variables, queues */}
+Deploy Laravel applications to production with zero downtime using your preferred deployment method.
+
+<Warning>
+Never commit `.env` or expose `APP_KEY` or database credentials. Set these on the server or through your hosting provider's secrets management.
+</Warning>
+
+<Tabs>
+  <Tab title="Laravel Forge">
+    <Steps>
+      <Step title="Connect your server">
+        Add your server to Forge (VPS, DigitalOcean, Linode, etc.) and let Forge provision it.
+      </Step>
+      <Step title="Create a site">
+        Create a site linked to your Git repo. Forge sets up Nginx, PHP-FPM, and SSL automatically.
+      </Step>
+      <Step title="Configure deploy script">
+        Use the default deploy script or customize with `composer install`, `php artisan migrate --force`, and cache commands.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Deployer">
+    <Steps>
+      <Step title="Install Deployer">
+        ```bash
+        composer require --dev deployer/deployer
+        ```
+      </Step>
+      <Step title="Initialize and configure">
+        Run `vendor/bin/dep init` and choose Laravel. Edit `deploy.php` with your server host, user, and repo path.
+      </Step>
+      <Step title="Deploy">
+        ```bash
+        vendor/bin/dep deploy production
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Manual">
+    <Steps>
+      <Step title="Upload and pull">
+        SSH into the server, clone or pull the repo, run `composer install` and build frontend assets.
+      </Step>
+      <Step title="Symlink release">
+        Point the web root to the current release directory; use symlinks for zero-downtime swaps.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+<Danger>
+Running `php artisan migrate` in production can cause downtime if migrations are slow. Run migrations during a maintenance window or use `php artisan migrate --force` in your deploy script only after verifying migrations are safe. Always backup the database first.
+</Danger>
+
+<AccordionGroup>
+  <Accordion title="502 Bad Gateway after deploy">
+    Restart PHP-FPM: `sudo systemctl restart php8.2-fpm` (adjust version). Check that your web root points to `/public`.
+  </Accordion>
+  <Accordion title="Permission denied on storage">
+    Ensure the web server user owns storage: `sudo chown -R www-data:www-data storage bootstrap/cache` and `chmod -R 775`.
+  </Accordion>
+  <Accordion title="Env variables not loading">
+    Run `php artisan config:clear` and verify `.env` exists. If using Forge, check Environment variables in the dashboard.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Installation" icon="download" href="/guides/laravel/installation">
+    Set up Laravel from scratch with best practices.
+  </Card>
+  <Card title="Packages" icon="puzzle-piece" href="/guides/laravel/packages">
+    Essential Laravel packages for your projects.
+  </Card>
+</Columns>

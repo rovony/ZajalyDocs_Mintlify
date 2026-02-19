@@ -5,4 +5,96 @@ description: "Create your first course and start delivering content with LMS."
 icon: "rocket"
 ---
 
-{/* TODO: Add content — course setup, module creation, learner enrollment */}
+This guide walks you through creating your first course, adding a module, and inviting learners.
+
+<Info>
+**Prerequisites:** An LMS account and API key from [app.lms.zajaly.dev](https://app.lms.zajaly.dev). You need permission to create courses.
+</Info>
+
+## Steps
+
+<Steps>
+  <Step title="Create a course">
+    Call the API to create a new course with a title and description:
+
+    <CodeGroup>
+```bash cURL
+curl -X POST 'https://api.lms.zajaly.dev/v1/courses' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "title": "Introduction to API Design",
+    "description": "Learn REST fundamentals and best practices."
+  }'
+```
+
+```javascript Node.js
+const response = await fetch('https://api.lms.zajaly.dev/v1/courses', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${process.env.LMS_API_KEY}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    title: 'Introduction to API Design',
+    description: 'Learn REST fundamentals and best practices.'
+  })
+});
+```
+
+```python Python
+import requests
+response = requests.post(
+  'https://api.lms.zajaly.dev/v1/courses',
+  headers={
+    'Authorization': f'Bearer {api_key}',
+    'Content-Type': 'application/json'
+  },
+  json={
+    'title': 'Introduction to API Design',
+    'description': 'Learn REST fundamentals and best practices.'
+  }
+)
+```
+    </CodeGroup>
+
+    <Check>Response includes `id`, `title`, and `slug` for the new course.</Check>
+  </Step>
+
+  <Step title="Add a module">
+    Add a module (section) to your course, then add lessons to it:
+
+    <CodeGroup>
+```bash cURL
+curl -X POST 'https://api.lms.zajaly.dev/v1/courses/{course_id}/modules' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "title": "REST Basics",
+    "order": 1
+  }'
+```
+    </CodeGroup>
+
+    <Check>Module is created and appears in the course structure.</Check>
+  </Step>
+
+  <Step title="Invite learners">
+    Enroll users by email or user ID:
+
+    <CodeGroup>
+```bash cURL
+curl -X POST 'https://api.lms.zajaly.dev/v1/courses/{course_id}/enrollments' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{"email": "learner@example.com"}'
+```
+    </CodeGroup>
+
+    <Check>Learner receives an invitation email and can access the course.</Check>
+  </Step>
+</Steps>
+
+## Next steps
+
+- [Overview](/products/lms/overview) — Course structure, progress tracking, and certificates.

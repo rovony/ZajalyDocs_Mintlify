@@ -4,4 +4,85 @@ description: "Harden your Linux server against common attacks and vulnerabilitie
 icon: "shield-halved"
 ---
 
-{/* TODO: Add content — firewall (ufw), fail2ban, unattended upgrades, disable root */}
+Apply essential security measures to reduce the risk of brute-force attacks, unauthorized access, and outdated software.
+
+<Warning>
+**Back up first:** Create a snapshot or backup of your server before making changes. If you lock yourself out, you can restore and try again.
+</Warning>
+
+<Danger>
+**Lockout risk:** Before disabling root login or changing SSH settings, ensure you have a working non-root user with sudo access and that your SSH key is in that user's `~/.ssh/authorized_keys`. Test login as the non-root user before applying these changes.
+</Danger>
+
+<Steps>
+  <Step title="Disable root login over SSH">
+    Edit `/etc/ssh/sshd_config` and set:
+
+    ```bash
+    PermitRootLogin no
+    PasswordAuthentication no
+    ```
+
+    Restart SSH:
+
+    ```bash
+    sudo systemctl restart sshd
+    ```
+
+    Keep a second terminal session open until you confirm you can still log in as your sudo user.
+  </Step>
+
+  <Step title="Configure the firewall (ufw)">
+    Enable UFW and allow SSH before enabling the firewall:
+
+    ```bash
+    sudo ufw allow 22/tcp
+    sudo ufw allow 80/tcp
+    sudo ufw allow 443/tcp
+    sudo ufw enable
+    sudo ufw status
+    ```
+
+    <Check>SSH (22), HTTP (80), and HTTPS (443) are allowed; UFW is active.</Check>
+  </Step>
+
+  <Step title="Install and configure fail2ban">
+    Install fail2ban to block IPs after repeated failed login attempts:
+
+    ```bash
+    sudo apt install -y fail2ban
+    sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+    ```
+
+    Edit `/etc/fail2ban/jail.local` and set `bantime`, `findtime`, and `maxretry` as needed. Enable and start:
+
+    ```bash
+    sudo systemctl enable fail2ban
+    sudo systemctl start fail2ban
+    sudo fail2ban-client status sshd
+    ```
+  </Step>
+
+  <Step title="Enable unattended upgrades">
+    Configure automatic security updates:
+
+    ```bash
+    sudo apt install -y unattended-upgrades
+    sudo dpkg-reconfigure -plow unattended-upgrades
+    ```
+
+    Or edit `/etc/apt/apt.conf.d/50unattended-upgrades` to enable security updates.
+  </Step>
+</Steps>
+
+<AccordionGroup>
+  <Accordion title="Locked out after disabling root">
+    Use your provider's recovery console (e.g., DigitalOcean Droplet Console) to log in as root, revert `/etc/ssh/sshd_config`, and fix `authorized_keys` for your sudo user.
+  </Accordion>
+  <Accordion title="UFW blocks your connection">
+    Ensure `ufw allow 22/tcp` was applied before `ufw enable`. Use the recovery console to disable UFW or allow port 22 if needed.
+  </Accordion>
+  <Accordion title="Fail2ban bans your IP">
+    Unban your IP: `sudo fail2ban-client set sshd unbanip YOUR_IP`. Add your IP to `ignoreip` in the jail config to prevent future bans.
+  </Accordion>
+</AccordionGroup>

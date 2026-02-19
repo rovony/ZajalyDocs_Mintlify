@@ -1,0 +1,75 @@
+---
+title: "Models"
+description: "Work with AI language models — selection, integration, and prompt engineering."
+icon: "brain"
+---
+
+Choose the right model for your use case: code generation, long documents, cost-sensitive workloads, or local deployment.
+
+| Model | Provider | Best for | Pricing tier |
+|-------|----------|----------|--------------|
+| GPT-4o | OpenAI | General tasks, code, reasoning | $$$ |
+| Claude 3.5 | Anthropic | Long context, analysis | $$$ |
+| Gemini Pro | Google | Multimodal, integration | $$ |
+| Llama 3 | Meta / Ollama | Local, privacy, cost | Free / $ |
+
+<Tabs>
+  <Tab title="OpenAI SDK">
+    <CodeGroup>
+    ```javascript
+    import OpenAI from 'openai';
+    const client = new OpenAI();
+    const { choices } = await client.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [{ role: 'user', content: 'Explain async/await.' }],
+    });
+    console.log(choices[0].message.content);
+    ```
+    </CodeGroup>
+  </Tab>
+  <Tab title="Anthropic SDK">
+    <CodeGroup>
+    ```javascript
+    import Anthropic from '@anthropic-ai/sdk';
+    const client = new Anthropic();
+    const msg = await client.messages.create({
+      model: 'claude-3-5-sonnet-20241022',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: 'Summarize this document.' }],
+    });
+    ```
+    </CodeGroup>
+  </Tab>
+  <Tab title="Ollama local">
+    <CodeGroup>
+    ```bash
+    ollama run llama3
+    ```
+    ```javascript
+    const res = await fetch('http://localhost:11434/api/generate', {
+      method: 'POST',
+      body: JSON.stringify({ model: 'llama3', prompt: 'Hello' }),
+    });
+    ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+<Tip>
+Match model to task: GPT-4o for complex code, Claude for long docs, Llama for cost-sensitive or air-gapped environments.
+</Tip>
+
+<Warning>
+API costs scale with tokens. Use streaming for long outputs, set max_tokens, and cache repeated prompts when possible.
+</Warning>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Agents" icon="robot" href="/guides/ai-ml/agents">
+    Build agents with tools and planning.
+  </Card>
+  <Card title="Prompt engineering" icon="message-bot" href="/guides/ai-ml/prompts">
+    Write effective prompts.
+  </Card>
+</Columns>

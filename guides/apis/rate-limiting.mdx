@@ -1,0 +1,78 @@
+---
+title: "Rate limiting"
+description: "Protect your APIs with rate limiting, throttling, and quota management."
+icon: "gauge-high"
+---
+
+Rate limiting protects APIs from abuse and ensures fair usage. Return standard headers so clients can adjust their requests.
+
+| Header | Meaning |
+|--------|---------|
+| X-RateLimit-Limit | Max requests per window |
+| X-RateLimit-Remaining | Requests left in window |
+| X-RateLimit-Reset | Unix timestamp when window resets |
+| Retry-After | Seconds to wait (on 429) |
+
+<Tabs>
+  <Tab title="Express middleware">
+    <CodeGroup>
+    ```javascript
+    const rateLimit = require('express-rate-limit');
+    app.use('/api/', rateLimit({
+      windowMs: 60 * 1000,
+      max: 100,
+      message: { error: 'Too many requests' },
+    }));
+    ```
+    </CodeGroup>
+  </Tab>
+  <Tab title="Laravel throttle">
+    <CodeGroup>
+    ```php
+    Route::middleware(['throttle:60,1'])->group(function () {
+        Route::get('/api/data', [ApiController::class, 'index']);
+    });
+    ```
+    </CodeGroup>
+  </Tab>
+  <Tab title="Nginx">
+    <CodeGroup>
+    ```nginx
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+    server {
+        location /api/ {
+            limit_req zone=api burst=20 nodelay;
+        }
+    }
+    ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+<Warning>
+Rate limiting alone doesn't stop DDoS. Use Cloudflare or similar for volumetric attacks. Combine with auth and request validation.
+</Warning>
+
+<Tip>
+Offer tiered limits: anonymous (10/min), API key (100/min), premium (1000/min). Return clear 429 bodies with `Retry-After`.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Sliding window vs fixed window">
+    Sliding window counts requests in a rolling window (fairer). Fixed window resets at interval boundaries (simpler).
+  </Accordion>
+  <Accordion title="Token bucket algorithm">
+    Tokens refill at a rate; each request consumes one. Allows bursts up to bucket size with sustained throughput cap.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="REST API design" icon="sitemap" href="/guides/apis/rest-design">
+    API design best practices.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/guides/apis/webhooks">
+    Webhook implementation.
+  </Card>
+</Columns>

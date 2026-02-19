@@ -1,0 +1,70 @@
+---
+title: "Prompt engineering"
+description: "Write effective prompts for code generation, documentation, and analysis."
+icon: "message-bot"
+---
+
+Effective prompts combine role, context, format, and constraints. Iterate on structure and examples to improve output quality.
+
+| Technique | Purpose |
+|-----------|---------|
+| Role | "You are a senior Python developer" — sets style and expertise |
+| Context | Provide relevant code, docs, or background |
+| Format | "Return JSON with keys X, Y" — constrains structure |
+| Constraints | "No libraries", "max 50 lines", "handle errors" |
+
+<Tabs>
+  <Tab title="System prompts">
+    <CodeGroup>
+    ```text
+    You are a helpful assistant that writes clear, documented Python code.
+    Prefer standard library. Include type hints and docstrings.
+    ```
+    </CodeGroup>
+  </Tab>
+  <Tab title="Few-shot">
+    <CodeGroup>
+    ```text
+    Convert this to camelCase:
+    Input: user_first_name  → Output: userFirstName
+    Input: order_total_amt  → Output: orderTotalAmt
+    Input: api_response_data → Output:
+    ```
+    </CodeGroup>
+  </Tab>
+  <Tab title="Chain-of-thought">
+    <CodeGroup>
+    ```text
+    Debug this function. First explain what it does, then identify the bug, then propose a fix.
+    Include line numbers in your explanation.
+    ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+<Tip>
+Iterate: try a minimal prompt first, then add role, context, and examples. A/B test variations to see what improves accuracy.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Code review prompts">
+    Provide the diff or file, specify language and style guide. Ask for: bugs, security issues, performance, readability. Request actionable suggestions.
+  </Accordion>
+  <Accordion title="Documentation prompts">
+    Include the code/API. Request: overview, parameters, return values, examples, error cases. Specify output format (Markdown, JSDoc, etc.).
+  </Accordion>
+  <Accordion title="Debugging prompts">
+    Share stack trace, relevant code, environment. Ask to hypothesize causes, suggest fixes, and explain trade-offs.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Models" icon="brain" href="/guides/ai-ml/models">
+    Model selection and integration.
+  </Card>
+  <Card title="Agents" icon="robot" href="/guides/ai-ml/agents">
+    Build agents with tools.
+  </Card>
+</Columns>

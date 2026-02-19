@@ -1,0 +1,40 @@
+---
+title: "AI prompts"
+description: "Reusable AI prompts for coding, documentation, debugging, and code review."
+icon: "message-bot"
+---
+
+Copy, paste, and adapt these prompts for your workflow. Each prompt is designed to be clear and actionable.
+
+<Tabs>
+  <Tab title="Coding">
+    <Prompt>Refactor this function for readability and performance. Keep the same public API. Add type hints and a brief docstring. Prefer standard library over third-party packages.</Prompt>
+
+    <Prompt>Implement a function that [describes the task]. Include error handling for edge cases. Use language: [JavaScript/Python/PHP]. Max 50 lines.</Prompt>
+
+    <Prompt>Convert this synchronous code to async/await. Preserve the original logic and add proper error propagation.</Prompt>
+  </Tab>
+  <Tab title="Documentation">
+    <Prompt>Generate API documentation for this code. Include: purpose, parameters, return value, possible errors, and a usage example. Format as Markdown.</Prompt>
+
+    <Prompt>Write a README for this project. Sections: overview, installation, usage, environment variables, and contributing. Keep each section concise.</Prompt>
+  </Tab>
+  <Tab title="Debugging">
+    <Prompt>Debug this code. I'm getting [error message]. Relevant context: [paste code]. Explain the cause, then suggest a fix with code. Include how to verify the fix works.</Prompt>
+
+    <Prompt>Analyze this stack trace and identify the root cause. Suggest the minimal fix and how to prevent this in the future.</Prompt>
+  </Tab>
+  <Tab title="Code Review">
+    <Prompt>Review this code diff. Check for: bugs, security issues, performance problems, and style. Provide specific, actionable feedback. Mention what looks good.</Prompt>
+
+    <Prompt>Review this pull request. Focus on: correctness, edge cases, error handling, and test coverage. Give a concise summary and bullet points for changes.</Prompt>
+  </Tab>
+</Tabs>
+
+<Tip>Iterate on prompts: start minimal, add role and context, then examples. A/B test variations to see what improves output quality.</Tip>
+
+<AccordionGroup>
+  <Accordion title="Chain-of-thought">Add "Think step by step" or "First explain your reasoning, then give the answer" for complex tasks.</Accordion>
+  <Accordion title="Few-shot examples">Include 1–3 input/output examples before the actual task to steer format and style.</Accordion>
+  <Accordion title="Constraints">Specify "no libraries", "max N lines", "handle null/empty" to reduce scope creep and improve focus.</Accordion>
+</AccordionGroup>

@@ -4,4 +4,116 @@ description: "In-depth reviews of developer tools, hosting providers, and servic
 icon: "star"
 ---
 
-{/* TODO: Add content — individual tool reviews, scoring criteria, recommendations */}
+Browse our unbiased reviews of developer tools, hosting providers, and services. Each review includes ratings, pros and cons, and clear recommendations for who should use it.
+
+<Tabs>
+  <Tab title="Hosting">
+    <AccordionGroup>
+      <Accordion title="Vercel">
+        <Badge>9/10</Badge> Vercel excels at static sites and serverless functions with zero-config deployments.
+
+**Pros:** Instant previews, edge functions, tight Next.js integration, free tier
+
+**Cons:** Cold starts on serverless, vendor lock-in for advanced features
+
+<Tip>Best for teams shipping Next.js or static sites who want minimal DevOps.</Tip>
+      </Accordion>
+      <Accordion title="Railway">
+        <Badge>8/10</Badge> Railway offers simple full-stack hosting with databases, cron jobs, and monorepos.
+
+**Pros:** One-click PostgreSQL, GitHub integration, straightforward pricing
+
+**Cons:** Fewer regions than competitors, less mature than Heroku-era options
+
+<Tip>Best for indie hackers and small teams who need a database alongside their app.</Tip>
+      </Accordion>
+      <Accordion title="DigitalOcean App Platform">
+        <Badge>7/10</Badge> App Platform provides PaaS-style deployment with predictable pricing.
+
+**Pros:** Simple pricing, managed databases, good for Laravel and Node
+
+**Cons:** Slower builds than Vercel, fewer edge features
+
+<Tip>Best for teams who prefer straightforward billing and Laravel/Node backends.</Tip>
+      </Accordion>
+    </AccordionGroup>
+    <Card title="Compare hosting options" icon="scale-balanced" href="/tools/comparisons">
+      See side-by-side comparisons of Vercel, Netlify, and Railway.
+    </Card>
+  </Tab>
+  <Tab title="Databases">
+    <AccordionGroup>
+      <Accordion title="PlanetScale">
+        <Badge>9/10</Badge> PlanetScale is a MySQL-compatible serverless database with branching.
+
+**Pros:** Branch-based workflow, auto-scaling, no connection limits
+
+**Cons:** No foreign keys, MySQL dialect only
+
+<Tip>Best for teams who want Git-like database workflows and scalable MySQL.</Tip>
+      </Accordion>
+      <Accordion title="Neon">
+        <Badge>8/10</Badge> Neon is a serverless PostgreSQL with branching and autoscaling.
+
+**Pros:** Full Postgres, branch per PR, generous free tier
+
+**Cons:** Newer than Aurora/RDS, some extensions limited
+
+<Tip>Best for PostgreSQL users who want branching and serverless scaling.</Tip>
+      </Accordion>
+    </AccordionGroup>
+    <Card title="Compare databases" icon="scale-balanced" href="/tools/comparisons">
+      MySQL vs PostgreSQL comparison.
+    </Card>
+  </Tab>
+  <Tab title="CI/CD">
+    <AccordionGroup>
+      <Accordion title="GitHub Actions">
+        <Badge>9/10</Badge> GitHub Actions integrates CI/CD directly into your repository.
+
+**Pros:** Free minutes, marketplace actions, secrets management
+
+**Cons:** YAML can get verbose, slower startup than some runners
+
+<Tip>Best for teams already on GitHub who want built-in CI without extra services.</Tip>
+      </Accordion>
+      <Accordion title="GitLab CI">
+        <Badge>8/10</Badge> GitLab CI provides pipelines, security scanning, and deployment features.
+
+**Pros:** All-in-one platform, built-in registry, pipeline templates
+
+**Cons:** Runner management overhead, learning curve for advanced features
+
+<Tip>Best for teams using GitLab who want integrated DevOps in one place.</Tip>
+      </Accordion>
+    </AccordionGroup>
+    <Card title="Compare CI/CD tools" icon="scale-balanced" href="/tools/comparisons">
+      GitHub Actions vs GitLab CI comparison.
+    </Card>
+  </Tab>
+  <Tab title="Monitoring">
+    <AccordionGroup>
+      <Accordion title="Better Stack">
+        <Badge>8/10</Badge> Better Stack offers uptime monitoring, logs, and incident management.
+
+**Pros:** Clean UI, status pages, affordable for small teams
+
+**Cons:** Fewer integrations than Datadog, newer product
+
+<Tip>Best for startups who need uptime + logs without enterprise pricing.</Tip>
+      </Accordion>
+      <Accordion title="Sentry">
+        <Badge>9/10</Badge> Sentry focuses on error tracking and performance monitoring.
+
+**Pros:** Excellent stack traces, release health, wide SDK support
+
+**Cons:** Can get expensive at scale, noisy without tuning
+
+<Tip>Best for teams who prioritize catching and fixing errors quickly.</Tip>
+      </Accordion>
+    </AccordionGroup>
+    <Card title="Explore comparisons" icon="scale-balanced" href="/tools/comparisons">
+      View all side-by-side tool comparisons.
+    </Card>
+  </Tab>
+</Tabs>

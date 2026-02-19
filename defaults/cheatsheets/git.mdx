@@ -1,0 +1,92 @@
+---
+title: "Git cheatsheet"
+description: "Quick reference for everyday Git commands, branching, and troubleshooting."
+icon: "code-branch"
+---
+
+Quick reference for everyday Git commands. Use the tabs to find commands by category.
+
+<Tabs>
+  <Tab title="Basics">
+    | Command | Description |
+    |---------|-------------|
+    | `git init` | Initialize a new repository |
+    | `git add .` | Stage all changes |
+    | `git commit -m "msg"` | Commit with message |
+    | `git status` | Show working tree status |
+    | `git log --oneline` | Compact commit history |
+
+    ```bash
+    git init
+    git add .
+    git commit -m "Initial commit"
+    ```
+  </Tab>
+  <Tab title="Branching">
+    | Command | Description |
+    |---------|-------------|
+    | `git branch` | List branches |
+    | `git checkout -b feat` | Create and switch to branch |
+    | `git switch -c feat` | Same (newer syntax) |
+    | `git merge main` | Merge main into current |
+    | `git rebase main` | Rebase current onto main |
+
+    ```bash
+    git checkout -b feature/login
+    git merge main
+    ```
+  </Tab>
+  <Tab title="Stashing">
+    | Command | Description |
+    |---------|-------------|
+    | `git stash` | Stash changes |
+    | `git stash pop` | Apply and remove stash |
+    | `git stash list` | List stashes |
+    | `git stash apply` | Apply without removing |
+
+    ```bash
+    git stash
+    git pull
+    git stash pop
+    ```
+  </Tab>
+  <Tab title="Remote">
+    | Command | Description |
+    |---------|-------------|
+    | `git remote -v` | List remotes |
+    | `git fetch origin` | Fetch without merge |
+    | `git pull` | Fetch and merge |
+    | `git push -u origin main` | Push and set upstream |
+
+    ```bash
+    git remote add origin https://github.com/user/repo.git
+    git push -u origin main
+    ```
+  </Tab>
+  <Tab title="Undo">
+    | Command | Description |
+    |---------|-------------|
+    | `git restore file` | Discard file changes |
+    | `git reset --soft HEAD~1` | Undo last commit, keep changes |
+    | `git reset --hard HEAD~1` | Undo last commit, discard changes |
+
+    ```bash
+    git restore config.env
+    git reset --soft HEAD~1
+    ```
+  </Tab>
+</Tabs>
+
+<AccordionGroup>
+  <Accordion title="Undo last commit (keep changes)">
+    `git reset --soft HEAD~1` — removes the commit but keeps changes staged.
+  </Accordion>
+  <Accordion title="Resolve merge conflict">
+    Edit conflicted files, remove conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), then `git add .` and `git commit`.
+  </Accordion>
+  <Accordion title="Recover deleted branch">
+    `git reflog` to find the commit hash, then `git checkout -b branch-name <hash>`.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>Add aliases: `git config --global alias.co checkout`, `alias.st status`, `alias.lg "log --oneline -10"`.</Tip>

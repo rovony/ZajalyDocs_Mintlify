@@ -3,6 +3,169 @@ title: "Custojo API"
 sidebarTitle: "API"
 description: "Integrate Custojo into your applications with the REST API."
 icon: "code"
+api: "POST /v1/contacts"
 ---
 
-{/* TODO: Add content — authentication, base URL, endpoints overview, rate limits */}
+The Custojo REST API lets you create and manage contacts, pipelines, deals, and activities. Use Bearer token authentication with your API key.
+
+**Base URL:** `https://api.custojo.com/v1`  
+**Auth:** Include `Authorization: Bearer YOUR_API_KEY` in every request.
+
+## Create contact
+
+Create a new contact in your workspace. Returns the full contact object including pipeline stage when applicable.
+
+### Parameters
+
+<ParamField path="contact_id" type="string">
+  Unique identifier for the contact. Used in `GET /v1/contacts/{contact_id}`, `PATCH`, and `DELETE`. Not used for POST create.
+</ParamField>
+
+<ParamField body="name" type="string" required>
+  Full name of the contact (e.g., "Jane Doe").
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  Email address. Must be unique within the workspace.
+</ParamField>
+
+<ParamField body="phone" type="string">
+  Phone number in E.164 format (e.g., "+15550123").
+</ParamField>
+
+<ParamField query="limit" type="integer" default="20">
+  Maximum number of results to return. Range: 1–100. Used for list endpoints such as `GET /v1/contacts`.
+</ParamField>
+
+<ParamField header="Authorization" type="string" required>
+  Bearer token. Format: `Bearer YOUR_API_KEY`
+</ParamField>
+
+### Response
+
+<ResponseField name="id" type="string" required>
+  Unique identifier for the contact (UUID).
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  Full name of the contact.
+</ResponseField>
+
+<ResponseField name="email" type="string" required>
+  Email address.
+</ResponseField>
+
+<ResponseField name="created_at" type="string" required>
+  ISO 8601 timestamp when the contact was created.
+</ResponseField>
+
+<ResponseField name="pipeline" type="object">
+  Current pipeline and stage if the contact has an associated deal.
+
+  <Expandable title="Pipeline object" open={false}>
+    <ResponseField name="id" type="string">Pipeline ID.</ResponseField>
+    <ResponseField name="name" type="string">Pipeline name (e.g., "Sales").</ResponseField>
+    <ResponseField name="stage" type="object">Current stage details.</ResponseField>
+    <ResponseField name="stage.id" type="string">Stage ID.</ResponseField>
+    <ResponseField name="stage.name" type="string">Stage name (e.g., "Qualified").</ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Request example
+
+<RequestExample>
+<CodeGroup>
+```bash cURL
+curl -X POST 'https://api.custojo.com/v1/contacts' \
+  -H 'Authorization: Bearer cujo_live_abc123xyz' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Jane Doe",
+    "email": "jane@acme.com",
+    "phone": "+1-555-0123"
+  }'
+```
+
+```javascript Node.js
+const response = await fetch('https://api.custojo.com/v1/contacts', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer cujo_live_abc123xyz',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    name: 'Jane Doe',
+    email: 'jane@acme.com',
+    phone: '+1-555-0123'
+  })
+});
+```
+
+```python Python
+import requests
+response = requests.post(
+  'https://api.custojo.com/v1/contacts',
+  headers={
+    'Authorization': 'Bearer cujo_live_abc123xyz',
+    'Content-Type': 'application/json'
+  },
+  json={
+    'name': 'Jane Doe',
+    'email': 'jane@acme.com',
+    'phone': '+1-555-0123'
+  }
+)
+```
+</CodeGroup>
+</RequestExample>
+
+### Response example
+
+<ResponseExample>
+```json Success (201)
+{
+  "id": "cnt_7f8a9b2c3d4e5f6a",
+  "name": "Jane Doe",
+  "email": "jane@acme.com",
+  "phone": "+1-555-0123",
+  "created_at": "2025-02-19T14:32:00Z",
+  "pipeline": null
+}
+```
+
+```json Success with pipeline (201)
+{
+  "id": "cnt_7f8a9b2c3d4e5f6a",
+  "name": "Jane Doe",
+  "email": "jane@acme.com",
+  "created_at": "2025-02-19T14:32:00Z",
+  "pipeline": {
+    "id": "pipe_abc123",
+    "name": "Sales",
+    "stage": {
+      "id": "stg_xyz789",
+      "name": "Qualified"
+    }
+  }
+}
+```
+
+```json Error (400)
+{
+  "error": "validation_error",
+  "message": "Email already exists in this workspace",
+  "details": [{ "field": "email", "code": "unique" }]
+}
+```
+
+```json Error (401)
+{
+  "error": "unauthorized",
+  "message": "Invalid or missing API key"
+}
+```
+</ResponseExample>
+
+<Note>
+**Rate limits:** 100 requests per minute per API key. Exceeding the limit returns `429 Too Many Requests`. Use exponential backoff for retries.
+</Note>

@@ -4,4 +4,75 @@ description: "Install Laravel and configure a new project with best practices."
 icon: "download"
 ---
 
-{/* TODO: Add content — composer create-project, environment config, database setup */}
+Install Laravel and configure a new project so you have a working development environment.
+
+<Info>
+**Prerequisites:** PHP 8.2 or higher, Composer, and optionally Node.js for frontend tooling.
+</Info>
+
+<Steps>
+  <Step title="Install via Composer">
+    Create a new Laravel project with Composer:
+
+    <CodeGroup>
+    ```bash Bash
+    composer create-project laravel/laravel my-app
+    cd my-app
+    ```
+
+    ```bash With specific version
+    composer create-project laravel/laravel my-app "11.*"
+    ```
+    </CodeGroup>
+
+    <Check>You see a new project directory with the Laravel structure.</Check>
+  </Step>
+
+  <Step title="Configure .env">
+    Copy the example environment file and edit it for your local setup:
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    Update `DB_CONNECTION`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` to match your database.
+
+    <Check>The `.env` file exists and contains your database credentials.</Check>
+  </Step>
+
+  <Step title="Generate application key">
+    Generate a unique encryption key for the application:
+
+    ```bash
+    php artisan key:generate
+    ```
+
+    <Check>The `APP_KEY` value in `.env` is populated with a 32-character string.</Check>
+  </Step>
+
+  <Step title="Run migrations">
+    Create the database tables:
+
+    ```bash
+    php artisan migrate
+    ```
+
+    <Check>Migrations run successfully and tables appear in your database.</Check>
+  </Step>
+</Steps>
+
+<Tip>
+On macOS, **Laravel Herd** provides PHP, Composer, and Nginx preconfigured — no separate installs needed. Download from herd.laravel.com.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Composer not found">
+    Install Composer globally: `curl -sS https://getcomposer.org/installer | php` and move to `~/.local/bin` or add to PATH.
+  </Accordion>
+  <Accordion title="PHP version too low">
+    Ensure PHP 8.2+ is installed. Run `php -v`. On macOS with Homebrew: `brew install php@8.3`.
+  </Accordion>
+  <Accordion title="Permission denied on storage/logs">
+    Run `chmod -R 775 storage bootstrap/cache` and ensure the web server user can write to these directories.
+  </Accordion>
+</AccordionGroup>

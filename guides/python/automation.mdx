@@ -1,0 +1,84 @@
+---
+title: "Automation"
+description: "Automate repetitive tasks with Python using scheduling, APIs, and system tools."
+icon: "robot"
+---
+
+Automate tasks with cron, API integrations, and file watchers. Combine Python scripts with system schedulers for reliable background jobs.
+
+<Tabs>
+  <Tab title="Scheduled tasks">
+    Use cron to run Python scripts on a schedule.
+  </Tab>
+  <Tab title="API integrations">
+    Poll or webhook APIs and process data automatically.
+  </Tab>
+  <Tab title="File watchers">
+    Watch directories and trigger processing when files change.
+  </Tab>
+</Tabs>
+
+<Steps>
+  <Step title="Create Python script">
+    ```python sync_job.py
+    import logging
+    logging.basicConfig(level=logging.INFO, filename='sync.log')
+    
+    def main():
+        logging.info('Starting sync')
+        # ... sync logic ...
+    
+    if __name__ == '__main__':
+        main()
+    ```
+  </Step>
+  <Step title="Add to crontab">
+    ```bash
+    crontab -e
+    ```
+    Add: `0 */6 * * * /path/to/venv/bin/python /path/to/sync_job.py >> /var/log/sync.log 2>&1`
+  </Step>
+</Steps>
+
+<CodeGroup>
+```python scheduled.py
+# Run every 6 hours via cron
+import requests
+resp = requests.get('https://api.example.com/export')
+with open('/data/export.json', 'w') as f:
+    f.write(resp.text)
+```
+
+```python watcher.py
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+class Handler(FileSystemEventHandler):
+    def on_created(self, event):
+        if event.src_path.endswith('.csv'):
+            process_file(event.src_path)
+
+observer = Observer()
+observer.schedule(Handler(), '/data', recursive=True)
+observer.start()
+```
+</CodeGroup>
+
+<Warning>
+Automated scripts run without user feedback. Add try/except, logging, and alerts. Ensure scripts fail fast and log clearly so you can debug production runs.
+</Warning>
+
+<Tip>
+Log to a file and optionally rotate with `logging.handlers.RotatingFileHandler` so logs don't grow indefinitely.
+</Tip>
+
+## Next steps
+
+<Columns cols={2}>
+  <Card title="Scripts" icon="scroll" href="/guides/python/scripts">
+    Build robust Python scripts.
+  </Card>
+  <Card title="Python setup" icon="python" href="/guides/python/setup">
+    Environment setup and venvs.
+  </Card>
+</Columns>
