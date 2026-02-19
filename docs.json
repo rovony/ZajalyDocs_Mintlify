@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "theme": "willow",
+  "name": "Zajaly Docs",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -126,7 +126,7 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:help@zajaly.com"
       }
     ],
     "primary": {
@@ -153,5 +153,24 @@
       "github": "https://github.com/mintlify",
       "linkedin": "https://linkedin.com/company/mintlify"
     }
+  },
+  "appearance": {
+    "default": "dark"
+  },
+  "fonts": {
+    "family": "Poppins",
+    "weight": 500,
+    "format": "woff",
+    "heading": {
+      "family": "Montserrat",
+      "weight": 400
+    },
+    "body": {
+      "family": "Poppins",
+      "weight": 400
+    }
+  },
+  "banner": {
+    "dismissible": true
   }
 }
