@@ -171,6 +171,6 @@
     }
   },
   "banner": {
-    "dismissible": true
+    "dismissible": false
   }
 }
