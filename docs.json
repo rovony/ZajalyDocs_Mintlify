@@ -58,6 +58,7 @@
               {
                 "group": "Server setup",
                 "pages": [
+                  "guides/servers/vps-setup",
                   "guides/servers/01-configure-ssh",
                   "guides/servers/02-configure-server",
                   "guides/servers/03-authenticate-github",
