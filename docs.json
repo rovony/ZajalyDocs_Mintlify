@@ -55,10 +55,20 @@
             "group": "Servers",
             "icon": "server",
             "pages": [
-              "guides/servers/vps-setup",
-              "guides/servers/ssh-config",
-              "guides/servers/security-hardening",
-              "guides/servers/monitoring"
+              {
+                "group": "Server setup",
+                "pages": [
+                  "guides/servers/vps-setup",
+                  "guides/servers/ssh-config"
+                ]
+              },
+              {
+                "group": "Server operations",
+                "pages": [
+                  "guides/servers/security-hardening",
+                  "guides/servers/monitoring"
+                ]
+              }
             ]
           },
           {
