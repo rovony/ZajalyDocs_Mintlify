@@ -173,5 +173,24 @@
   "banner": {
   "content": "Welcome to Zajaly Docs — under construction!",
   "dismissible": false
+  },
+  "styling": {
+    "eyebrows": "section",
+    "latex": true
+  },
+  "icons": {
+    "library": "fontawesome"
+  },
+  "thumbnails": {
+    "appearance": "light"
+  },
+  "search": {
+    "prompt": "Ask away..."
+  },
+  "seo": {
+    "indexing": "navigable"
+  },
+  "metadata": {
+    "timestamp": true
   }
 }
