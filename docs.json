@@ -171,6 +171,7 @@
     }
   },
   "banner": {
-    "dismissible": false
+  "content": "Welcome to Zajaly Docs — under construction!",
+  "dismissible": false
   }
 }
