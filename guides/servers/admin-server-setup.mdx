@@ -1,0 +1,145 @@
+---
+title: "Admin-server setup"
+description: "Create server-level Git repository and Admin-Server directory structure for scripts and config."
+sidebarTitle: "4. Admin-server setup"
+icon: "folder"
+---
+
+Initialize a Git repository in the server home directory and create the **Admin-Server** folder structure used for deployment scripts and configuration. This gives you version-controlled server setup and a single place for universal management scripts.
+
+<Info>
+**Time estimate:** ~30 minutes. **Result:** Server config is in Git; Admin-Server is ready for scripts and config files.
+</Info>
+
+## Prerequisites
+
+- **A3 GitHub authentication** done: server can `ssh -T git@github.com` successfully
+- You are connected to the server (e.g. via VSCode Remote)
+
+## 1. Initialize server-level Git repository
+
+On the server:
+
+```bash
+cd ~
+git init
+git config user.email "server@yourdomain.com"
+git config user.name "Server"
+git config pull.rebase false
+git config --list --local
+```
+
+<Check>Git is initialized in the home directory with local user config.</Check>
+
+## 2. Create server .gitignore
+
+Create a `.gitignore` that excludes domains, secrets, and temp files but keeps Admin-Server and config:
+
+```bash
+cat > ~/.gitignore << 'EOF'
+# Domain directories (each project has its own repo)
+domains/
+public_html/
+
+# Temp, logs, cache
+*.tmp *.temp *.swp *~
+*.log error_log access_log logs/
+.cache/ cache/ tmp/
+
+# Backups and large files
+*.sql *.sql.gz backup-*.sql
+*.zip *.tar.gz *.tar.bz2
+
+# Private / sensitive
+.env .env.*
+.ssh/id_* .ssh/*_key .ssh/*_key.pub
+.ssh/authorized_keys .ssh/known_hosts
+.my.cnf .msmtprc
+
+# IDE / editor
+.vscode-server/ .vscode-server-insiders/ .cursor-server/ .cursor/
+
+# System / host-specific
+.DS_Store Thumbs.db
+.cagefs/ .cl.selector/ .cpanel/
+node_modules/ vendor/
+EOF
+cat ~/.gitignore
+```
+
+<Check>Server-level `.gitignore` is in place.</Check>
+
+## 3. Create README and first commit
+
+```bash
+cd ~
+cat > README.md << 'EOF'
+# Server configuration
+
+**Purpose:** Server configuration, scripts, and management tools.
+
+## Contents
+
+- **Admin-Server/** — Deployment and management scripts
+- Server config files (e.g. `.gitconfig`, `.ssh/config`)
+
+## Quick restore
+
+Clone this repo to a new server and run Admin-Server scripts as needed.
+EOF
+
+git add .gitignore README.md
+git commit -m "Initial server config: .gitignore, README"
+```
+
+<Check>First commit created.</Check>
+
+## 4. Create Admin-Server directory structure
+
+```bash
+mkdir -p ~/Admin-Server/{scripts,config,docs,logs}
+touch ~/Admin-Server/config/tracked-domains.conf
+touch ~/Admin-Server/config/binary-paths.conf
+ls -la ~/Admin-Server
+ls -la ~/Admin-Server/config
+```
+
+Add placeholder content for config (you’ll fill paths in **Binary path discovery**):
+
+```bash
+echo "# PHP_PATH=\n# COMPOSER_PATH=\n# NPM_PATH=" > ~/Admin-Server/config/binary-paths.conf
+echo "# One domain per line" > ~/Admin-Server/config/tracked-domains.conf
+```
+
+<Check>Admin-Server has `scripts/`, `config/`, `docs/`, `logs/` and config files.</Check>
+
+## 5. Push to GitHub
+
+Create a **new empty repository** on GitHub (e.g. `Server-YourHosting-Name`), then on the server:
+
+```bash
+cd ~
+git remote add origin git@github.com:YOUR_USERNAME/YOUR_SERVER_REPO.git
+git add Admin-Server/
+git commit -m "Add Admin-Server structure and config"
+git branch -M main
+git push -u origin main
+```
+
+<Check>Server repo is on GitHub with README, .gitignore, and Admin-Server.</Check>
+
+## Verification
+
+```bash
+git status
+git log --oneline
+git remote -v
+```
+
+On GitHub you should see README, .gitignore, and the Admin-Server folder.
+
+## Next step
+
+<Card title="5. Binary path discovery" icon="search" href="/guides/servers/binary-path-discovery">
+  Find PHP, Composer, and NPM paths and document them for deploy scripts.
+</Card>

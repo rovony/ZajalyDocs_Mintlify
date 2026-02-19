@@ -56,10 +56,14 @@
             "icon": "server",
             "pages": [
               {
-                "group": "Server setup",
+                "group": "Server setup (universal)",
                 "pages": [
-                  "guides/servers/vps-setup",
-                  "guides/servers/ssh-config"
+                  "guides/servers/local-machine-setup",
+                  "guides/servers/server-initial-config",
+                  "guides/servers/github-authentication",
+                  "guides/servers/admin-server-setup",
+                  "guides/servers/binary-path-discovery",
+                  "guides/servers/verification-testing"
                 ]
               },
               {

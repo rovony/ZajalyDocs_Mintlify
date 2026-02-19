@@ -1,0 +1,92 @@
+---
+title: "GitHub authentication"
+description: "Add the server's public key to GitHub so the server can push and pull repositories."
+sidebarTitle: "3. GitHub authentication"
+icon: "github"
+---
+
+Add the server’s public SSH key to your GitHub account so the server can clone, push, and pull without a password.
+
+<Info>
+**Time estimate:** ~15 minutes. **Result:** The server can authenticate with GitHub and access your repositories.
+</Info>
+
+## Prerequisites
+
+- **A2 Server initial configuration** done: you have the server’s public key (e.g. from `cat ~/.ssh/server_github_key.pub` on the server)
+- A GitHub account
+
+## 1. Add the public key to GitHub
+
+### Copy the public key
+
+On the server (e.g. in VSCode terminal connected via SSH):
+
+```bash
+cat ~/.ssh/server_github_key.pub
+```
+
+Copy the full line (starts with `ssh-ed25519`, ends with the comment).
+
+### Add the key in GitHub
+
+1. In a browser, go to [github.com](https://github.com) and sign in.
+2. Profile (top right) → **Settings**.
+3. In the left sidebar, open **SSH and GPG keys**.
+4. Click **New SSH key**.
+5. Fill in:
+   - **Title:** e.g. `Production Server - your-project`
+   - **Key type:** Authentication Key
+   - **Key:** paste the public key
+6. Click **Add SSH key** and complete any verification.
+
+<Check>The new key appears under SSH and GPG keys with the title and fingerprint you set.</Check>
+
+<Warning>This key is for your **account**. The server will be able to clone any repo you can access and push where you have write access.</Warning>
+
+## 2. Test GitHub connection from the server
+
+From a terminal **on the server** (e.g. VSCode Remote):
+
+```bash
+ssh -T git@github.com
+```
+
+You should see something like:
+
+```
+Hi your-username! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+<Check>GitHub responds with your username and “successfully authenticated”.</Check>
+
+## 3. Optional: test clone
+
+From the server:
+
+```bash
+cd /tmp
+git clone git@github.com:your-username/some-repo.git
+# Remove test clone if you like: rm -rf some-repo
+```
+
+If the clone works, the server has the right access to that repo.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Permission denied (publickey) when testing">
+    - Confirm you pasted the **full** public key (one line) in GitHub
+    - On the server, run: `ssh -vT git@github.com` and check which key is offered
+    - Ensure `~/.ssh/config` on the server has `IdentityFile ~/.ssh/server_github_key` for `Host github.com`
+  </Accordion>
+  <Accordion title="Wrong GitHub user in success message">
+    The key is tied to the GitHub account where you added it. Add the key to the correct account or use a machine user / deploy key for the repo.
+  </Accordion>
+</AccordionGroup>
+
+## Next step
+
+<Card title="4. Admin-server setup" icon="folder" href="/guides/servers/admin-server-setup">
+  Initialize a server-level Git repo and create the Admin-Server directory structure.
+</Card>

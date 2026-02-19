@@ -1,0 +1,133 @@
+---
+title: "Verification & testing"
+description: "Final verification that server setup is complete — connections, repo, Admin-Server, and binary paths."
+sidebarTitle: "6. Verification & testing"
+icon: "check"
+---
+
+Run through this checklist to confirm all Part A steps are in place before you start deploying projects (Part B).
+
+<Info>
+**Time estimate:** ~15 minutes. **Result:** Confidence that SSH, GitHub, Git repo, Admin-Server, and binary paths are correct.
+</Info>
+
+## 1. Connection verification
+
+### Local SSH to server
+
+From your **local** terminal:
+
+```bash
+ssh your-server-alias pwd
+# Expected: /home/your-username (or similar)
+ssh your-server-alias
+# Expected: Connects without password
+exit
+```
+
+<Check>Local SSH to server works without a password.</Check>
+
+### Server → GitHub
+
+From local, run this on the server in one go:
+
+```bash
+ssh your-server-alias 'ssh -T git@github.com'
+```
+
+You should see: `Hi your-username! You've successfully authenticated...`
+
+<Check>Server can authenticate with GitHub.</Check>
+
+### VSCode Remote
+
+1. **Remote-SSH: Connect to Host** → select your server alias.
+2. Confirm the status bar shows "SSH: your-server-alias" and you can browse the server home directory.
+
+<Check>VSCode Remote connection works.</Check>
+
+## 2. Repository verification
+
+### Server Git repo
+
+```bash
+ssh your-server-alias 'cd ~ && git status'
+# Expected: "On branch main", "nothing to commit, working tree clean" (or similar)
+ssh your-server-alias 'cd ~ && git log --oneline'
+ssh your-server-alias 'cd ~ && git remote -v'
+```
+
+<Check>Server home is a Git repo on `main` with `origin` pointing to GitHub.</Check>
+
+### GitHub repo
+
+In the browser, open your server repo on GitHub. Confirm:
+
+- [ ] README is visible  
+- [ ] `.gitignore` is present  
+- [ ] **Admin-Server** directory is present  
+- [ ] A few commits in history  
+
+<Check>GitHub repo matches server.</Check>
+
+## 3. Admin-Server structure
+
+```bash
+ssh your-server-alias 'ls -la ~/Admin-Server'
+# Expected: scripts/, config/, docs/, logs/
+ssh your-server-alias 'ls -la ~/Admin-Server/config/'
+# Expected: tracked-domains.conf, binary-paths.conf
+```
+
+<Check>Admin-Server directories and config files exist.</Check>
+
+## 4. Binary paths
+
+```bash
+ssh your-server-alias 'cat ~/Admin-Server/config/binary-paths.conf'
+```
+
+Confirm:
+
+- [ ] `PHP_PATH` has the real path (not a placeholder)  
+- [ ] `COMPOSER_PATH` is set  
+- [ ] `NPM_PATH` is set or marked as not available  
+
+<Check>Binary paths are documented and filled in.</Check>
+
+## 5. Quick verification script (optional)
+
+From your **local** machine you can run a single script on the server to echo status. Example:
+
+```bash
+ssh your-server-alias << 'EOF'
+echo "[1] Server GitHub key:" && test -f ~/.ssh/server_github_key && echo "  ✅" || echo "  ❌"
+echo "[2] SSH config GitHub block:" && grep -q "Host github.com" ~/.ssh/config && echo "  ✅" || echo "  ❌"
+echo "[3] GitHub auth:" && ssh -T git@github.com 2>&1 | grep -q "successfully authenticated" && echo "  ✅" || echo "  ❌"
+echo "[4] Git repo:" && test -d ~/.git && echo "  ✅" || echo "  ❌"
+echo "[5] Admin-Server:" && test -d ~/Admin-Server && echo "  ✅" || echo "  ❌"
+echo "[6] binary-paths.conf:" && test -f ~/Admin-Server/config/binary-paths.conf && echo "  ✅" || echo "  ❌"
+EOF
+```
+
+Adjust key name (`server_github_key`) and paths if yours differ.
+
+## Part A complete
+
+If all items above pass:
+
+- [ ] Local machine connects to the server with SSH  
+- [ ] Server authenticates to GitHub  
+- [ ] Server home is a Git repo and pushed to GitHub  
+- [ ] Admin-Server structure and config exist  
+- [ ] Binary paths are documented  
+
+You’re ready for **Part B** (e.g. Laravel deployment, deploy scripts, and project-specific setup).
+
+<Card title="Security hardening" icon="shield-halved" href="/guides/servers/security-hardening">
+  Harden the server (firewall, fail2ban, updates) before or after deploying apps.
+</Card>
+
+<Card title="Monitoring" icon="chart-line" href="/guides/servers/monitoring">
+  Add monitoring and alerting for uptime and health.
+</Card>

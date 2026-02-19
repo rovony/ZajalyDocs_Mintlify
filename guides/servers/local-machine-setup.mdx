@@ -1,0 +1,183 @@
+---
+title: "Local machine setup"
+description: "Configure your local computer to connect to the server via SSH — config file, key pair, and first connection."
+sidebarTitle: "1. Local machine setup"
+icon: "laptop"
+---
+
+Configure your local machine so you can connect to the server with passwordless SSH. This is step one of the universal server setup.
+
+<Info>
+**Time estimate:** ~30 minutes. **Result:** You can run `ssh your-server-alias` and connect without a password.
+</Info>
+
+## Prerequisites
+
+- Server IP address, SSH port, and username (from your hosting provider)
+- VSCode installed locally (optional but recommended)
+- Basic terminal/command line familiarity
+
+## 1. Configure local SSH
+
+### Open your SSH config file
+
+<Tabs>
+  <Tab title="VSCode (recommended)">
+    1. Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (Mac)
+    2. Type **Remote-SSH: Open SSH Configuration File**
+    3. Select your config file (usually `~/.ssh/config`)
+  </Tab>
+  <Tab title="Terminal">
+    <CodeGroup>
+      ```bash Mac/Linux
+      nano ~/.ssh/config
+      ```
+      ```powershell Windows
+      notepad "$env:USERPROFILE\.ssh\config"
+      ```
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+### Add server configuration
+
+Add a block like this (replace values with your server details):
+
+```bash
+# Your server alias
+Host your-server-alias
+    HostName YOUR_SERVER_IP
+    User your-ssh-username
+    Port 22
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+```
+
+| Variable | Meaning |
+|----------|---------|
+| `Host` | Alias you use to connect (e.g. `ssh your-server-alias`) |
+| `HostName` | Server IP address |
+| `User` | SSH username from your provider |
+| `Port` | SSH port (often 22; some hosts use a custom port e.g. 65002) |
+
+<Check>SSH config file updated with server details.</Check>
+
+## 2. Generate SSH key
+
+### Check for existing key
+
+```bash
+ls -la ~/.ssh/id_ed25519
+```
+
+If the file exists, you can skip key generation and go to **Copy public key** below.
+
+### Generate new key (if needed)
+
+<CodeGroup>
+  ```bash Mac/Linux
+  ssh-keygen -t ed25519 -C "your-email@example.com"
+  ```
+  ```powershell Windows
+  ssh-keygen -t ed25519 -C "your-email@example.com"
+  ```
+</CodeGroup>
+
+- When prompted for file location, press **Enter** for the default (`~/.ssh/id_ed25519`).
+- For passphrase: **Enter** twice for none, or set one for extra security.
+
+```bash
+ls -la ~/.ssh/id_ed25519*
+# Should show id_ed25519 (private) and id_ed25519.pub (public)
+```
+
+<Check>SSH key pair generated.</Check>
+
+### Copy public key
+
+<Tabs>
+  <Tab title="Mac">
+    ```bash
+    pbcopy < ~/.ssh/id_ed25519.pub
+    ```
+  </Tab>
+  <Tab title="Linux">
+    ```bash
+    cat ~/.ssh/id_ed25519.pub
+    # Manually copy the full line
+    ```
+  </Tab>
+  <Tab title="Windows PowerShell">
+    ```powershell
+    Get-Content $env:USERPROFILE\.ssh\id_ed25519.pub | Set-Clipboard
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>Paste only the **public** key (`.pub`). It starts with `ssh-ed25519 AAAA...`. Never share the private key.</Warning>
+
+## 3. Add public key to your host
+
+Add the key in your hosting provider’s panel (e.g. **SSH Access** / **SSH Keys**):
+
+1. Log in to the provider dashboard (e.g. hPanel, cPanel, or cloud console).
+2. Open **SSH Access** or **Security** → **SSH keys**.
+3. Add a new key: choose a name (e.g. "My laptop") and paste the public key.
+4. Save.
+
+<Check>Public key added to the hosting provider.</Check>
+
+## 4. Test SSH connection
+
+```bash
+ssh your-server-alias
+```
+
+On first connection you may see a host key prompt — type `yes` and press Enter. You should get a shell on the server without entering a password.
+
+```bash
+pwd
+hostname
+# Confirm you're on the server
+exit
+```
+
+<Check>You can connect with `ssh your-server-alias` and disconnect with `exit`.</Check>
+
+## Verification checklist
+
+Before moving to **Server initial configuration**:
+
+- [ ] SSH config has the correct Host, HostName, User, Port
+- [ ] Key pair exists (`id_ed25519` and `id_ed25519.pub`)
+- [ ] Public key is added in the hosting panel
+- [ ] `ssh your-server-alias` connects without a password
+- [ ] You can exit and reconnect successfully
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Permission denied (publickey)">
+    - Check key permissions: `chmod 600 ~/.ssh/id_ed25519` and `chmod 644 ~/.ssh/id_ed25519.pub`
+    - Confirm the **public** key was added in the hosting panel
+    - Run `ssh -v your-server-alias` and check the output
+  </Accordion>
+  <Accordion title="Connection timed out">
+    - Verify server IP and port (e.g. custom port 65002)
+    - Ensure SSH is enabled in the hosting panel
+    - Try: `ssh -p PORT user@IP`
+  </Accordion>
+  <Accordion title="Host key verification failed">
+    Remove the old host key and try again:
+    ```bash
+    ssh-keygen -R [YOUR_SERVER_IP]:PORT
+    ssh your-server-alias
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next step
+
+<Card title="2. Server initial configuration" icon="server" href="/guides/servers/server-initial-config">
+  Connect via VSCode Remote, generate a server-side GitHub key, and configure SSH for Git.
+</Card>

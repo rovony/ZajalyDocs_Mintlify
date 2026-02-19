@@ -1,0 +1,129 @@
+---
+title: "Binary path discovery"
+description: "Discover PHP, Composer, and NPM binary paths needed for deployment and scripts."
+sidebarTitle: "5. Binary path discovery"
+icon: "search"
+---
+
+Find the full paths to PHP, Composer, and NPM on the server so deployment scripts (e.g. deploy.php) can call them reliably. PHP is often **per-domain**; Composer and NPM are usually **server-wide**.
+
+<Info>
+**Time estimate:** ~20 minutes. **Result:** Paths documented in `~/Admin-Server/config/binary-paths.conf` for use in Part B (deployment).
+</Info>
+
+## Why this matters
+
+| Binary   | Scope        | Notes |
+|----------|--------------|--------|
+| **PHP**  | Per-domain   | Each domain can use a different PHP version; path often like `/opt/alt/php83/usr/bin/php` |
+| **Composer** | Server-wide | Use Composer 2.x for modern Laravel; e.g. `/usr/local/bin/composer` |
+| **NPM**  | Server-wide | May be under NVM; e.g. `~/.nvm/versions/node/v20.x.x/bin/npm` |
+
+Wrong paths cause deployment failures, so document them before running deploy scripts.
+
+## 1. Discover PHP path (per-domain)
+
+You need a domain with PHP already configured (e.g. in hPanel/cPanel).
+
+### Create phpinfo (temporarily)
+
+On the server, in the domain’s web root (adjust path to your host):
+
+```bash
+cd ~/domains/yourdomain.com/public_html
+# Or: mkdir -p ~/domains/yourdomain.com/public_html && cd ...
+echo "<?php phpinfo(); ?>" > phpinfo.php
+```
+
+### Find the path in the browser
+
+1. Open `http://yourdomain.com/phpinfo.php` in a browser.
+2. Find the **Configure Command** section and the line with `--prefix=...` (e.g. `--prefix=/opt/alt/php83`).
+3. PHP binary path is: **prefix** + `/usr/bin/php`, e.g. `/opt/alt/php83/usr/bin/php`.
+
+### Remove phpinfo (security)
+
+<Danger>Remove `phpinfo.php` after use — it exposes server configuration.</Danger>
+
+```bash
+rm ~/domains/yourdomain.com/public_html/phpinfo.php
+```
+
+<Check>PHP path noted and phpinfo removed.</Check>
+
+## 2. Discover Composer path (server-wide)
+
+On the server:
+
+```bash
+which composer
+composer --version
+# Prefer Composer 2.x for Laravel
+```
+
+If `composer` is 1.x, try:
+
+```bash
+which composer2
+# Or install Composer 2 in ~/bin (see your host’s docs)
+```
+
+Common paths: `/usr/local/bin/composer` or `/usr/local/bin/composer2`. Use the one that gives Composer 2.x.
+
+<Check>Composer path and version (2.x) noted.</Check>
+
+## 3. Discover NPM path (server-wide)
+
+```bash
+which npm
+npm --version
+```
+
+If you use NVM, the path may look like:
+
+```bash
+~/.nvm/versions/node/v20.x.x/bin/npm
+```
+
+Use the path returned by `which npm` (after any `nvm use` you’d run in deploy scripts).
+
+<Check>NPM path noted.</Check>
+
+## 4. Document paths in Admin-Server config
+
+Edit the config file you created in **Admin-server setup**:
+
+```bash
+nano ~/Admin-Server/config/binary-paths.conf
+```
+
+Add (replace with your actual paths):
+
+```bash
+# Binary paths (discovered in Part A5)
+PHP_PATH=/opt/alt/php83/usr/bin/php
+COMPOSER_PATH=/usr/local/bin/composer
+NPM_PATH=/usr/local/bin/npm
+# Or if using NVM: NPM_PATH=/home/user/.nvm/versions/node/v20.x.x/bin/npm
+```
+
+Save and verify:
+
+```bash
+cat ~/Admin-Server/config/binary-paths.conf
+```
+
+<Tip>Source this file in your deploy script or use it to set environment variables before running `php`, `composer`, and `npm`.</Tip>
+
+## Verification
+
+- [ ] PHP path matches the domain’s PHP version and works when run from the server user.
+- [ ] Composer path points to Composer 2.x.
+- [ ] NPM path works for the server user.
+- [ ] Paths are written in `~/Admin-Server/config/binary-paths.conf`.
+
+## Next step
+
+<Card title="6. Verification & testing" icon="check" href="/guides/servers/verification-testing">
+  Run the full verification checklist and confirm the server is ready for deployment.
+</Card>
